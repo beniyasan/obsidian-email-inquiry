@@ -8,6 +8,7 @@
 import { EmailInquiryModel } from '../models/EmailInquiry';
 import { EmailCaptureRequest, EmailCaptureResponse, AttachmentInfo } from '../types/api';
 import { EmailStatus, EmailCategory, Priority } from '../types/enums';
+import { KnowledgeExtractionService, KnowledgeExtractionSettings } from './KnowledgeExtractionService';
 
 export interface VaultAdapter {
   create(path: string, content: string): Promise<void>;
@@ -25,10 +26,19 @@ export interface SearchIndexer {
 export class EmailCaptureService {
   private vault: VaultAdapter;
   private searchIndexer?: SearchIndexer;
+  private emailsFolder: string;
+  private knowledgeExtractionService?: KnowledgeExtractionService;
 
-  constructor(vault: VaultAdapter, searchIndexer?: SearchIndexer) {
+  constructor(
+    vault: VaultAdapter, 
+    emailsFolder: string = 'Emails', 
+    searchIndexer?: SearchIndexer,
+    knowledgeExtractionService?: KnowledgeExtractionService
+  ) {
     this.vault = vault;
+    this.emailsFolder = emailsFolder;
     this.searchIndexer = searchIndexer;
+    this.knowledgeExtractionService = knowledgeExtractionService;
   }
 
   async captureEmail(request: EmailCaptureRequest): Promise<EmailCaptureResponse> {
@@ -58,10 +68,24 @@ export class EmailCaptureService {
         await this.searchIndexer.addEmail(email);
       }
 
+      // Extract knowledge if email is resolved and auto-extraction is enabled
+      let knowledgePath: string | null = null;
+      if (this.knowledgeExtractionService && this.knowledgeExtractionService.isEligibleForExtraction(email)) {
+        try {
+          knowledgePath = await this.knowledgeExtractionService.extractKnowledgeFromEmail(email);
+          console.log('[EmailCapture] Knowledge extracted:', knowledgePath);
+        } catch (error) {
+          console.error('[EmailCapture] Knowledge extraction failed:', error);
+          // Don't fail the entire capture process if knowledge extraction fails
+        }
+      }
+
       return {
         id: email.id,
         path: filePath,
-        message: 'Email captured successfully'
+        message: knowledgePath ? 
+          `Email captured successfully. Knowledge extracted to: ${knowledgePath}` :
+          'Email captured successfully'
       };
 
     } catch (error) {
@@ -112,8 +136,8 @@ export class EmailCaptureService {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     
-    // Create folder structure: Emails/YYYY/MM/
-    const folderPath = `Emails/${year}/${month}`;
+    // Create folder structure: [emailsFolder]/YYYY/MM/
+    const folderPath = `${this.emailsFolder}/${year}/${month}`;
     
     // Ensure folder exists
     if (!(await this.vault.exists(folderPath))) {
@@ -147,7 +171,7 @@ export class EmailCaptureService {
   }
 
   private async processAttachments(attachments: AttachmentInfo[], emailId: string): Promise<void> {
-    const attachmentFolder = `Emails/Attachments/${emailId}`;
+    const attachmentFolder = `${this.emailsFolder}/Attachments/${emailId}`;
     
     if (!(await this.vault.exists(attachmentFolder))) {
       await this.vault.createFolder(attachmentFolder);

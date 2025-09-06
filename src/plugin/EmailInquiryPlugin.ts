@@ -7,6 +7,7 @@
 
 import { Plugin, TFile, Notice, WorkspaceLeaf } from 'obsidian';
 import { EmailCaptureService } from '../services/EmailCaptureService';
+import { KnowledgeExtractionService } from '../services/KnowledgeExtractionService';
 import { I18nService, SupportedLanguage } from '../services/I18nService';
 import { ObsidianVaultAdapter } from './adapters/ObsidianVaultAdapter';
 import { EmailCaptureModal } from './modals/EmailCaptureModal';
@@ -45,6 +46,7 @@ export default class EmailInquiryPlugin extends Plugin {
   
   // Services
   private emailCaptureService: EmailCaptureService;
+  private knowledgeExtractionService: KnowledgeExtractionService;
   private vaultAdapter: ObsidianVaultAdapter;
   private i18nService: I18nService;
 
@@ -60,7 +62,21 @@ export default class EmailInquiryPlugin extends Plugin {
     
     // Initialize other services
     this.vaultAdapter = new ObsidianVaultAdapter(this.app.vault, this.app.fileManager);
-    this.emailCaptureService = new EmailCaptureService(this.vaultAdapter);
+    
+    // Initialize knowledge extraction service
+    this.knowledgeExtractionService = new KnowledgeExtractionService(this.vaultAdapter, {
+      knowledgeFolder: this.settings.knowledgeFolder,
+      autoExtractKnowledge: this.settings.autoExtractKnowledge,
+      enableNotifications: this.settings.enableNotifications
+    });
+    
+    // Initialize email capture service with knowledge extraction
+    this.emailCaptureService = new EmailCaptureService(
+      this.vaultAdapter, 
+      this.settings.emailsFolder,
+      undefined, // No search indexer for now
+      this.knowledgeExtractionService
+    );
 
     // Add settings tab
     this.addSettingTab(new EmailInquirySettingsTab(this.app, this));
@@ -73,7 +89,13 @@ export default class EmailInquiryPlugin extends Plugin {
       this.openEmailCaptureModal();
     });
 
-    console.log('Email Inquiry Plugin loaded successfully');
+    console.log('[EmailInquiry] Plugin loaded successfully with settings:', {
+      emailsFolder: this.settings.emailsFolder,
+      summariesFolder: this.settings.summariesFolder,
+      knowledgeFolder: this.settings.knowledgeFolder,
+      autoExtractKnowledge: this.settings.autoExtractKnowledge,
+      language: this.settings.language
+    });
   }
 
   onunload() {
@@ -86,10 +108,35 @@ export default class EmailInquiryPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+    
     // Update i18n service language when settings change
     if (this.i18nService) {
       this.i18nService.setLanguage(this.settings.language);
     }
+    
+    // Re-initialize services with new settings
+    if (this.vaultAdapter) {
+      // Update knowledge extraction service settings
+      this.knowledgeExtractionService.updateSettings({
+        knowledgeFolder: this.settings.knowledgeFolder,
+        autoExtractKnowledge: this.settings.autoExtractKnowledge,
+        enableNotifications: this.settings.enableNotifications
+      });
+      
+      // Re-initialize email capture service with updated settings
+      this.emailCaptureService = new EmailCaptureService(
+        this.vaultAdapter,
+        this.settings.emailsFolder,
+        undefined,
+        this.knowledgeExtractionService
+      );
+    }
+    
+    console.log('[EmailInquiry] Settings updated:', {
+      emailsFolder: this.settings.emailsFolder,
+      knowledgeFolder: this.settings.knowledgeFolder,
+      autoExtractKnowledge: this.settings.autoExtractKnowledge
+    });
   }
 
   private registerCommands() {
