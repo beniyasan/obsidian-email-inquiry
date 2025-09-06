@@ -141,26 +141,127 @@ export class DailySummaryService {
   private async collectEmailsFromFolder(folderPath: string, targetDate: Date): Promise<EmailSummaryData[]> {
     const emails: EmailSummaryData[] = [];
     const targetDateStr = targetDate.toISOString().split('T')[0];
-    // const day = String(targetDate.getDate()).padStart(2, '0'); // Unused
+    const day = String(targetDate.getDate()).padStart(2, '0');
 
     try {
-      // This is a simplified approach - in a real implementation, you would:
-      // 1. List files in the folder
-      // 2. Filter files that match the target date pattern (DD-*)
-      // 3. Parse frontmatter to extract email data
-
-      // For now, we'll create mock data based on the expected file naming pattern
-      // In a complete implementation, you would use the vault adapter to read files
       console.log(`[DailySummary] Scanning folder: ${folderPath} for date: ${targetDateStr}`);
 
-      // Mock implementation - replace with actual file reading
-      // This would normally read .md files and parse their frontmatter
+      // Check if folder exists
+      if (!(await this.vault.exists(folderPath))) {
+        console.log(`[DailySummary] Folder ${folderPath} does not exist`);
+        return emails;
+      }
+
+      // List all markdown files in the folder
+      const filePaths = await this.vault.list(folderPath);
+      const files = filePaths.filter(path => path.endsWith('.md'));
+      console.log(`[DailySummary] Found ${files.length} markdown files in ${folderPath}`);
+
+      for (const filePath of files) {
+        const fileName = filePath.split('/').pop() || '';
+        if (!fileName.endsWith('.md')) {
+          continue;
+        }
+
+        // Check if file matches the target date pattern (DD-*)
+        if (fileName.startsWith(`${day}-`)) {
+          console.log(`[DailySummary] Processing email file: ${fileName}`);
+
+          try {
+            const content = await this.vault.read(filePath);
+            
+            // Parse frontmatter to extract email data
+            const emailData = this.parseEmailFile(content, filePath);
+            if (emailData) {
+              emails.push(emailData);
+            }
+          } catch (fileError) {
+            console.error(`[DailySummary] Error reading file ${fileName}:`, fileError);
+          }
+        }
+      }
 
     } catch (error) {
       console.error(`[DailySummary] Error reading folder ${folderPath}:`, error);
     }
 
+    console.log(`[DailySummary] Collected ${emails.length} emails from ${folderPath}`);
     return emails;
+  }
+
+  /**
+   * Parse email file content and extract frontmatter data
+   */
+  private parseEmailFile(content: string, filePath: string): EmailSummaryData | null {
+    try {
+      // Extract frontmatter (between --- and ---)
+      const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+      if (!frontmatterMatch) {
+        console.log(`[DailySummary] No frontmatter found in ${filePath}`);
+        return null;
+      }
+
+      const frontmatterText = frontmatterMatch[1];
+      const frontmatter: any = {};
+
+      // Simple YAML parsing for frontmatter
+      const lines = frontmatterText.split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+
+        if (trimmed.includes(':')) {
+          const colonIndex = trimmed.indexOf(':');
+          const key = trimmed.substring(0, colonIndex).trim();
+          let value = trimmed.substring(colonIndex + 1).trim();
+
+          // Remove quotes
+          if ((value.startsWith('"') && value.endsWith('"')) || 
+              (value.startsWith("'") && value.endsWith("'"))) {
+            value = value.slice(1, -1);
+          }
+
+          // Handle arrays (tags)
+          if (key === 'tags' && value === '') {
+            frontmatter[key] = [];
+            // Look for array items in following lines
+            continue;
+          }
+
+          frontmatter[key] = value;
+        } else if (trimmed.startsWith('- ')) {
+          // Array item
+          const lastKey = Object.keys(frontmatter).pop();
+          if (lastKey && Array.isArray(frontmatter[lastKey])) {
+            frontmatter[lastKey].push(trimmed.substring(2).trim());
+          } else if (lastKey) {
+            frontmatter[lastKey] = [trimmed.substring(2).trim()];
+          }
+        }
+      }
+
+      // Validate required fields
+      if (!frontmatter.id || !frontmatter.sender || !frontmatter.subject) {
+        console.log(`[DailySummary] Missing required fields in ${filePath}`);
+        return null;
+      }
+
+      return {
+        id: frontmatter.id,
+        sender: frontmatter.sender,
+        senderName: frontmatter.senderName || undefined,
+        subject: frontmatter.subject,
+        category: frontmatter.category as EmailCategory || undefined,
+        priority: frontmatter.priority as Priority || undefined,
+        status: frontmatter.status as EmailStatus,
+        receivedDate: new Date(frontmatter.receivedDate),
+        tags: frontmatter.tags || []
+      };
+
+    } catch (error) {
+      console.error(`[DailySummary] Error parsing email file ${filePath}:`, error);
+      return null;
+    }
   }
 
   /**
@@ -430,10 +531,15 @@ export class DailySummaryService {
     const year = dateObj.getFullYear();
     // const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Unused
 
+    // Ensure base summaries folder exists first
+    if (!(await this.vault.exists(this.settings.summariesFolder))) {
+      await this.vault.createFolder(this.settings.summariesFolder);
+    }
+
     // Create folder structure: [summariesFolder]/YYYY/
     const folderPath = `${this.settings.summariesFolder}/${year}`;
 
-    // Ensure folder exists
+    // Ensure year folder exists
     if (!(await this.vault.exists(folderPath))) {
       await this.vault.createFolder(folderPath);
     }

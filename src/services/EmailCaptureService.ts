@@ -15,6 +15,8 @@ export interface VaultAdapter {
   exists(path: string): Promise<boolean>;
   createFolder(path: string): Promise<void>;
   writeFile(path: string, content: ArrayBuffer | Buffer): Promise<void>;
+  read(path: string): Promise<string>;
+  list(path: string): Promise<string[]>;
 }
 
 export interface SearchIndexer {

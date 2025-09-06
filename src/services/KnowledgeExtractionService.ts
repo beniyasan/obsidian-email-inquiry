@@ -342,6 +342,67 @@ export class KnowledgeExtractionService {
   }
 
   /**
+   * Generate knowledge content with proper source file path link
+   */
+  private generateKnowledgeContentWithSourcePath(knowledgeEntry: KnowledgeEntryModel, sourceEmail: EmailInquiryModel, sourceFilePath: string): string {
+    const frontmatter = knowledgeEntry.toFrontmatter();
+    const frontmatterLines: string[] = [];
+    
+    for (const [key, value] of Object.entries(frontmatter)) {
+      if (value != null) {
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            frontmatterLines.push(`${key}:`);
+            value.forEach((item) => frontmatterLines.push(`  - "${item}"`));
+          }
+        } else if (typeof value === 'string') {
+          frontmatterLines.push(`${key}: "${value}"`);
+        } else {
+          frontmatterLines.push(`${key}: ${value}`);
+        }
+      }
+    }
+
+    // Create a relative link to the source email file
+    // Handle both Windows and Unix paths, normalize to forward slashes for Obsidian
+    let sourceFileLink = sourceFilePath
+      .replace(/^\/mnt\/c\/obsidian\//, '') // Remove Unix-style obsidian path
+      .replace(/^C:\\Obsidian\\/, '') // Remove Windows-style obsidian path
+      .replace(/\\/g, '/') // Convert backslashes to forward slashes
+      .replace(/\.md$/, ''); // Remove .md extension for Obsidian
+    
+    const content = [
+      '---',
+      frontmatterLines.join('\n'),
+      '---',
+      '',
+      `# ${knowledgeEntry.title}`,
+      '',
+      '## 問題・質問',
+      '',
+      knowledgeEntry.problem,
+      '',
+      '## 解決方法・回答',
+      '',
+      knowledgeEntry.solution,
+      '',
+      '## 関連情報',
+      '',
+      `**カテゴリ:** ${knowledgeEntry.category || 'その他'}`,
+      `**キーワード:** ${knowledgeEntry.keywords.join(', ')}`,
+      `**元のメール:** [[${sourceFileLink}|${sourceEmail.subject}]]`,
+      `**作成日:** ${knowledgeEntry.createdAt.toISOString().split('T')[0]}`,
+      '',
+      '## メモ',
+      '',
+      '<!-- 追加の情報や関連事項があれば記録してください -->',
+      ''
+    ];
+
+    return content.join('\n');
+  }
+
+  /**
    * Sanitize filename for safe file creation
    */
   private sanitizeFilename(filename: string): string {
@@ -357,5 +418,169 @@ export class KnowledgeExtractionService {
    */
   updateSettings(settings: KnowledgeExtractionSettings): void {
     this.settings = settings;
+  }
+
+  /**
+   * Extract knowledge from email with source file path for proper linking
+   */
+  private async extractKnowledgeFromEmailWithPath(email: EmailInquiryModel, sourceFilePath: string): Promise<string | null> {
+    try {
+      console.log(`[KnowledgeExtraction] Extracting knowledge from email: ${email.id}`);
+      
+      const knowledgeEntry = await this.createKnowledgeEntry(email);
+      const knowledgeFilePath = await this.generateKnowledgeFilePath(knowledgeEntry);
+      const knowledgeContent = this.generateKnowledgeContentWithSourcePath(knowledgeEntry, email, sourceFilePath);
+      
+      await this.vault.create(knowledgeFilePath, knowledgeContent);
+      console.log(`[KnowledgeExtraction] Knowledge extracted successfully: ${knowledgeFilePath}`);
+      
+      return knowledgeFilePath;
+    } catch (error) {
+      console.error(`[KnowledgeExtraction] Failed to extract knowledge from email ${email.id}:`, error);
+      throw new Error(`Failed to extract knowledge: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Extract knowledge from existing email file by reading its content
+   */
+  async extractKnowledgeFromFile(filePath: string): Promise<string | null> {
+    try {
+      console.log(`[KnowledgeExtraction] Extracting knowledge from file: ${filePath}`);
+
+      // Read the email file content
+      const content = await this.vault.read(filePath);
+      const emailData = this.parseEmailFile(content, filePath);
+      
+      if (!emailData) {
+        console.log(`[KnowledgeExtraction] Failed to parse email file: ${filePath}`);
+        return null;
+      }
+
+      // Debug: Log parsed email data
+      console.log(`[KnowledgeExtraction] Parsed email data:`, JSON.stringify(emailData, null, 2));
+      
+      // Check if email is eligible for extraction
+      if (emailData.status !== 'resolved') {
+        console.log(`[KnowledgeExtraction] Email not resolved (status: "${emailData.status}", type: ${typeof emailData.status})`);
+        return null;
+      }
+
+      // For manual extraction, skip the autoExtractKnowledge setting check
+      console.log(`[KnowledgeExtraction] Processing resolved email for manual knowledge extraction`);
+
+      // Create EmailInquiryModel from parsed data
+      const email = this.createEmailModelFromData(emailData);
+      
+      // Extract knowledge using the existing method with source file path
+      return await this.extractKnowledgeFromEmailWithPath(email, filePath);
+      
+    } catch (error) {
+      console.error(`[KnowledgeExtraction] Failed to extract knowledge from file ${filePath}:`, error);
+      throw new Error(`Failed to extract knowledge from file: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Parse email file frontmatter (similar to DailySummaryService)
+   */
+  private parseEmailFile(content: string, filePath: string): any | null {
+    try {
+      // Extract frontmatter (between --- and ---)
+      const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+      if (!frontmatterMatch) {
+        console.log(`[KnowledgeExtraction] No frontmatter found in ${filePath}`);
+        return null;
+      }
+
+      const frontmatterText = frontmatterMatch[1];
+      const frontmatter: any = {};
+
+      // Simple YAML parsing for frontmatter
+      const lines = frontmatterText.split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+
+        if (trimmed.includes(':')) {
+          const colonIndex = trimmed.indexOf(':');
+          const key = trimmed.substring(0, colonIndex).trim();
+          let value = trimmed.substring(colonIndex + 1).trim();
+
+          // Debug specific status parsing
+          if (key === 'status') {
+            console.log(`[KnowledgeExtraction] Parsing status - raw value: "${value}"`);
+          }
+
+          // Remove quotes
+          if ((value.startsWith('"') && value.endsWith('"')) || 
+              (value.startsWith("'") && value.endsWith("'"))) {
+            value = value.slice(1, -1);
+            if (key === 'status') {
+              console.log(`[KnowledgeExtraction] Status after quote removal: "${value}"`);
+            }
+          }
+
+          // Handle arrays (tags)
+          if (key === 'tags' && value === '') {
+            frontmatter[key] = [];
+            continue;
+          }
+
+          frontmatter[key] = value;
+          
+          // Debug specific status assignment
+          if (key === 'status') {
+            console.log(`[KnowledgeExtraction] Final status value assigned: "${value}"`);
+          }
+        } else if (trimmed.startsWith('- ')) {
+          // Array item
+          const lastKey = Object.keys(frontmatter).pop();
+          if (lastKey && Array.isArray(frontmatter[lastKey])) {
+            frontmatter[lastKey].push(trimmed.substring(2).trim());
+          } else if (lastKey) {
+            frontmatter[lastKey] = [trimmed.substring(2).trim()];
+          }
+        }
+      }
+
+      // Extract body content
+      const bodyMatch = content.match(/---[\s\S]*?---\n\n([\s\S]*)/);
+      const bodyContent = bodyMatch ? bodyMatch[1] : '';
+
+      return {
+        ...frontmatter,
+        body: bodyContent,
+        receivedDate: frontmatter.receivedDate ? new Date(frontmatter.receivedDate) : new Date(),
+        tags: frontmatter.tags || []
+      };
+
+    } catch (error) {
+      console.error(`[KnowledgeExtraction] Error parsing email file ${filePath}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Create EmailInquiryModel from parsed data
+   */
+  private createEmailModelFromData(data: any): EmailInquiryModel {
+    const email = EmailInquiryModel.create({
+      sender: data.sender,
+      senderName: data.senderName,
+      subject: data.subject,
+      body: data.body,
+      receivedDate: data.receivedDate,
+      category: data.category,
+      priority: data.priority || 'medium',
+      tags: data.tags || []
+    });
+    
+    // Update status to preserve the parsed status from frontmatter
+    if (data.status) {
+      email.updateStatus(data.status);
+    }
+    
+    return email;
   }
 }

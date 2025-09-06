@@ -191,6 +191,15 @@ export default class EmailInquiryPlugin extends Plugin {
         this.openBulkImportModal();
       }
     });
+
+    // Extract Knowledge from Current Email Command
+    this.addCommand({
+      id: 'extract-knowledge-from-email',
+      name: '現在のメールからナレッジを抽出',
+      callback: () => {
+        this.extractKnowledgeFromCurrentEmail();
+      }
+    });
   }
 
   private openEmailCaptureModal() {
@@ -245,6 +254,49 @@ export default class EmailInquiryPlugin extends Plugin {
   private openBulkImportModal() {
     // TODO: Implement bulk import modal
     new Notice(this.i18nService.t('notices.bulk_import_coming_soon'));
+  }
+
+  /**
+   * Extract knowledge from currently opened email file
+   */
+  private async extractKnowledgeFromCurrentEmail() {
+    try {
+      const activeFile = this.app.workspace.getActiveFile();
+      
+      if (!activeFile) {
+        new Notice('ファイルが選択されていません');
+        return;
+      }
+
+      // Check if file is in emails folder
+      if (!activeFile.path.startsWith(this.settings.emailsFolder)) {
+        new Notice('メールフォルダ内のファイルを選択してください');
+        return;
+      }
+
+      if (!activeFile.path.endsWith('.md')) {
+        new Notice('Markdownファイルを選択してください');
+        return;
+      }
+
+      new Notice('ナレッジ抽出を開始しています...');
+
+      console.log(`[EmailInquiry] Extracting knowledge from: ${activeFile.path}`);
+
+      const knowledgePath = await this.knowledgeExtractionService.extractKnowledgeFromFile(activeFile.path);
+
+      if (knowledgePath) {
+        new Notice(`ナレッジが抽出されました: ${knowledgePath}`);
+        console.log(`[EmailInquiry] Knowledge extracted successfully: ${knowledgePath}`);
+      } else {
+        new Notice('ナレッジ抽出に失敗しました。メールが解決済みか確認してください。');
+        console.log('[EmailInquiry] No knowledge extracted - email may not be resolved or eligible');
+      }
+
+    } catch (error) {
+      console.error('[EmailInquiry] Knowledge extraction failed:', error);
+      new Notice(`ナレッジ抽出エラー: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   // Utility methods
