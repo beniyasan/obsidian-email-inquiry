@@ -1,0 +1,68 @@
+title: "Email Inquiry Management Plugin"
+description: "Obsidian用メール問い合わせ管理プラグイン - 日本語完全対応"
+url: "https://beniyasan.github.io"
+baseurl: "/obsidian-email-inquiry"
+
+# Build settings
+theme: minima
+markdown: kramdown
+highlighter: rouge
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Navigation
+header_pages:
+  - installation.md
+  - usage.md
+  - customization.md
+  - troubleshooting.md
+  - api.md
+  - development.md
+  - contributing.md
+
+# SEO
+lang: ja
+author: "beniyasan"
+twitter:
+  username: beniyasan
+  card: summary_large_image
+
+# Social links
+github_username: beniyasan
+
+# Google Analytics (optional)
+# google_analytics: GA_TRACKING_ID
+
+# Exclude from processing
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# Collections
+collections:
+  guides:
+    output: true
+    permalink: /:collection/:name/
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+  - scope:
+      path: "_guides"
+      type: "guides"
+    values:
+      layout: "page"

@@ -1,0 +1,97 @@
+name: 🚀 Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: 🏗️ Build Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: npm ci
+      
+    - name: 🧪 Run tests
+      run: npm test --if-present
+      
+    - name: 🏗️ Build plugin
+      run: npm run build
+      
+    - name: ✅ Verify build
+      run: |
+        test -f main.js || exit 1
+        test -f manifest.json || exit 1
+        echo "✅ Release build verified"
+        
+    - name: 📋 Extract version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+    - name: 🏷️ Update manifest version
+      run: |
+        jq --arg version "${{ steps.version.outputs.VERSION }}" '.version = $version' manifest.json > manifest.tmp
+        mv manifest.tmp manifest.json
+        
+    - name: 📦 Create release archive
+      run: |
+        mkdir -p release
+        cp main.js manifest.json release/
+        cd release
+        zip -r ../email-inquiry-management-v${{ steps.version.outputs.VERSION }}.zip .
+        
+    - name: 📝 Generate release notes
+      id: release_notes
+      run: |
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+        echo "## 📧 Email Inquiry Management Plugin v${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 📦 インストール方法" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "1. \`main.js\` と \`manifest.json\` をダウンロード" >> $GITHUB_OUTPUT
+        echo "2. \`<vault>/.obsidian/plugins/email-inquiry-management/\` に配置" >> $GITHUB_OUTPUT
+        echo "3. Obsidian を再起動してプラグインを有効化" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 🔧 システム要件" >> $GITHUB_OUTPUT
+        echo "- Obsidian v1.4.0 以上" >> $GITHUB_OUTPUT
+        echo "- Windows, macOS, Linux 対応" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 📚 ドキュメント" >> $GITHUB_OUTPUT
+        echo "- [使用方法](https://beniyasan.github.io/obsidian-email-inquiry/usage.html)" >> $GITHUB_OUTPUT
+        echo "- [インストールガイド](https://beniyasan.github.io/obsidian-email-inquiry/installation.html)" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 🐛 問題レポート" >> $GITHUB_OUTPUT
+        echo "問題が発生した場合は [Issues](https://github.com/beniyasan/obsidian-email-inquiry/issues) でお知らせください。" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+    - name: 🚀 Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.version.outputs.VERSION }}
+        name: "Email Inquiry Management v${{ steps.version.outputs.VERSION }}"
+        body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
+        files: |
+          main.js
+          manifest.json
+          email-inquiry-management-v${{ steps.version.outputs.VERSION }}.zip
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: 📢 Create Release Announcement
+      run: |
+        echo "🎉 リリース v${{ steps.version.outputs.VERSION }} が作成されました！" >> $GITHUB_STEP_SUMMARY
+        echo "📦 ダウンロード: https://github.com/beniyasan/obsidian-email-inquiry/releases/tag/v${{ steps.version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "📚 ドキュメント: https://beniyasan.github.io/obsidian-email-inquiry/" >> $GITHUB_STEP_SUMMARY

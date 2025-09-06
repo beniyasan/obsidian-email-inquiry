@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/beniyasan/obsidian-email-inquiry/discussions
+    about: 一般的な質問や機能についての議論 / General questions and feature discussions
+  - name: 📖 Documentation
+    url: https://github.com/beniyasan/obsidian-email-inquiry/wiki
+    about: プラグインの詳細な使い方 / Detailed plugin documentation
+  - name: 🔧 Obsidian Community
+    url: https://obsidian.md/community
+    about: Obsidian 全般に関する質問 / General Obsidian questions

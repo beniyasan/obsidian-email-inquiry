@@ -517,7 +517,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Discord**: [Community Discord](https://discord.gg/your-channel)
 
 ---
-
-**Obsidian コミュニティのために ❤️ を込めて作られました**
-
-*メールの混沌を整理された知識に変換。今日からメール問い合わせナレッジベースの構築を始めましょう！*

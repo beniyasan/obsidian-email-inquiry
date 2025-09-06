@@ -1,0 +1,22 @@
+name: "Email Inquiry Management CodeQL Config"
+
+disable-default-queries: false
+
+queries:
+  - uses: security-and-quality
+  - uses: security-experimental
+
+paths-ignore:
+  - node_modules
+  - "**/*.test.ts"
+  - "**/*.test.js"
+  - "**/tests/**"
+  - "**/__tests__/**"
+  - "**/coverage/**"
+  - "**/docs/**"
+  - "**/*.md"
+
+paths:
+  - src
+  - "*.ts"
+  - "*.js"
