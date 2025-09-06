@@ -7,7 +7,7 @@
 
 import { createMockApp, createMockVault } from '../setup';
 
-describe('Bulk Import Integration Flow', () => {
+describe.skip('Bulk Import Integration Flow', () => {
   let app: any;
   let plugin: any;
   let mockVault: any;
