@@ -1,104 +1,115 @@
-# 📧 Email Inquiry Management Plugin for Obsidian
+# 📧 Obsidian Email Inquiry Management Plugin
 
 ![Plugin Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Obsidian Version](https://img.shields.io/badge/obsidian-%3E%3D1.4.0-purple)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-A powerful Obsidian plugin for capturing, organizing, and building knowledge from email inquiries with full Japanese language support. Transform your email support workflow into a searchable knowledge base.
+メール問い合わせを効率的に管理し、ナレッジベースを構築するための Obsidian プラグインです。日本語完全対応で、メールサポート業務を検索可能な知識ベースに変換します。
 
-## ✨ Features
+## ✨ 機能
 
-### 📧 Email Capture
-- **One-click email capture** with rich modal interface
-- **Automatic metadata extraction** (sender, subject, date, attachments)
-- **Smart categorization** with 4 default categories:
-  - **Specification** (仕様) - Requirements, specs, design consultations
-  - **Issue** (障害) - Bug reports, system failures
-  - **Migration/VUP** (移行/VUP) - System migration, version upgrades
-  - **Other** (その他) - General inquiries
-- **Custom categories** - Add unlimited custom categories
-- **Priority assignment** (Low, Medium, High, Urgent)
-- **Tag management** with auto-completion
-- **File organization** by date (YYYY/MM structure)
+### 📧 メールキャプチャ
+- **ワンクリックメールキャプチャ** - リッチなモーダルインターフェース
+- **自動メタデータ抽出** - 送信者、件名、日付、添付ファイル
+- **スマートカテゴリ分類** - 4つのデフォルトカテゴリ：
+  - **仕様** (Specification) - 要件確認、仕様相談、設計相談
+  - **障害** (Issue) - バグレポート、システム障害、不具合報告
+  - **移行/VUP** (Migration/VUP) - システム移行、バージョンアップ
+  - **その他** (Other) - 一般的な問い合わせ
+- **カスタムカテゴリ** - 無制限にカテゴリを追加可能
+- **優先度設定** - 低、中、高、緊急
+- **タグ管理** - オートコンプリート機能付き
+- **ファイル整理** - 日付別構造（YYYY/MM形式）
 
-### 🌍 Multi-language Support
-- **Full Japanese language support** (日本語完全対応)
-- **English interface**
-- **Real-time language switching**
-- **Localized commands and menus**
+### 🌍 多言語対応
+- **日本語完全対応** - すべてのUIを日本語化
+- **英語インターフェース** - English interface
+- **リアルタイム言語切替** - 設定から即座に切り替え
+- **ローカライズされたコマンドとメニュー**
 
-### 📊 Daily Summaries
-- **Automated daily reports** with status breakdowns
-- **Category and priority analysis** 
-- **Peak hours identification**
-- **Keyword trend analysis**
-- **Export options** (Markdown, CSV, JSON)
+### 📊 日次サマリー
+- **自動日次レポート** - ステータス内訳付き
+- **カテゴリと優先度の分析**
+- **ピーク時間の特定**
+- **キーワードトレンド分析**
+- **エクスポートオプション** - Markdown、CSV、JSON
 
-### 🔍 Knowledge Base
-- **Auto-extract solutions** from resolved emails
-- **Searchable knowledge repository**
-- **Related email linking**
-- **Solution effectiveness tracking**
+### 🔍 ナレッジベース
+- **解決済みメールから自動でソリューション抽出**
+- **検索可能なナレッジリポジトリ**
+- **関連メールのリンク**
+- **ソリューション効果の追跡**
 
-### 🛠️ CLI Tools
-- **Email parser CLI** for batch processing (EML, MBOX, CSV)
-- **Summary generator CLI** for automated reporting
-- **Knowledge extractor CLI** for solution mining
+### 🛠️ CLI ツール
+- **メールパーサーCLI** - バッチ処理対応（EML、MBOX、CSV）
+- **サマリー生成CLI** - 自動レポート作成
+- **ナレッジ抽出CLI** - ソリューションマイニング
 
-## 🚀 Installation
+## 🚀 インストール
 
-### Method 1: Manual Installation (Recommended for Testing)
+### 方法1: 手動インストール（推奨）
 
-1. **Download the plugin files:**
-   - Download `main.js` and `manifest.json` from releases
+1. **プラグインファイルをダウンロード:**
+   - Releasesから `main.js` と `manifest.json` をダウンロード
    
-2. **Create plugin directory:**
+2. **プラグインディレクトリを作成:**
    ```bash
-   # Navigate to your Obsidian vault
+   # Obsidian Vaultに移動
    mkdir -p .obsidian/plugins/email-inquiry-management
    ```
 
-3. **Copy plugin files:**
+3. **プラグインファイルをコピー:**
    ```bash
-   # Copy the files to the plugin directory
+   # プラグインディレクトリにファイルをコピー
    cp main.js .obsidian/plugins/email-inquiry-management/
    cp manifest.json .obsidian/plugins/email-inquiry-management/
    ```
 
-4. **Enable the plugin:**
-   - Restart Obsidian
-   - Go to Settings → Community Plugins
-   - Enable "Email Inquiry Management"
+4. **プラグインを有効化:**
+   - Obsidianを再起動
+   - 設定 → コミュニティプラグイン
+   - "Email Inquiry Management"を有効化
 
-### Method 2: BRAT (Beta Reviewer's Auto-update Tool)
+### 方法2: ソースからビルド
 
-1. Install BRAT plugin from Community Plugins
-2. Add this repository URL in BRAT settings
-3. Install and enable the plugin
+```bash
+# リポジトリをクローン
+git clone https://github.com/yourusername/obsidian-email-inquiry.git
+cd obsidian-email-inquiry
 
-## 📖 Usage Guide
+# 依存関係をインストール
+npm install
 
-### 🎯 Quick Start
+# ビルド
+npm run build
 
-1. **Capture your first email:**
-   - Press `Ctrl+P` (Command Palette)
-   - Type "Capture Email" and press Enter
-   - Or click the 📧 ribbon icon
+# Vaultにコピー
+cp main.js manifest.json <vault>/.obsidian/plugins/email-inquiry-management/
+```
 
-2. **Fill in email details:**
-   - **Sender Email** (required): customer@example.com
-   - **Sender Name** (optional): John Customer
-   - **Subject** (required): Login Issue - Cannot Access Dashboard
-   - **Category**: Support
-   - **Priority**: Medium
-   - **Tags**: login-issue, dashboard, urgent
-   - **Email Content**: Paste the email body
+## 📖 使用方法
 
-3. **Click "Capture Email"** - Done! ✅
+### 🎯 クイックスタート
 
-### 📂 File Organization
+1. **最初のメールをキャプチャ:**
+   - `Ctrl+P` を押してコマンドパレットを開く
+   - "メールをキャプチャ" と入力してEnter
+   - またはリボンの 📧 アイコンをクリック
 
-Your emails will be automatically organized as:
+2. **メール詳細を入力:**
+   - **送信者メール** (必須): customer@example.com
+   - **送信者名** (任意): 田中太郎
+   - **件名** (必須): ログイン問題 - ダッシュボードにアクセスできません
+   - **カテゴリ**: 仕様
+   - **優先度**: 中
+   - **タグ**: ログイン問題, ダッシュボード, 緊急
+   - **メール内容**: メール本文を貼り付け
+
+3. **"メールをキャプチャ" をクリック** - 完了！ ✅
+
+### 📂 ファイル組織
+
+メールは自動的に以下のように整理されます：
 
 ```
 Emails/
@@ -119,65 +130,65 @@ Knowledge/
 └── ...
 ```
 
-### 📋 Email Note Format
+### 📋 メールノートのフォーマット
 
-Each captured email becomes a structured note:
+キャプチャされた各メールは構造化されたノートになります：
 
 ```markdown
 ---
 id: "email-123-456-789"
 sender: "customer@example.com"
-senderName: "John Customer"
-subject: "Login Issue - Cannot Access Dashboard"
+senderName: "田中太郎"
+subject: "ログイン問題 - ダッシュボードにアクセスできません"
 receivedDate: "2024-09-05T14:30:00+09:00"
 status: "pending"
-tags: ["login-issue", "dashboard", "support"]
-category: "support"
+tags: ["ログイン問題", "ダッシュボード", "サポート"]
+category: "specification"
 priority: "medium"
 ---
 
-# Login Issue - Cannot Access Dashboard
+# ログイン問題 - ダッシュボードにアクセスできません
 
-**From:** John Customer <customer@example.com>
+**From:** 田中太郎 <customer@example.com>
 **Date:** 2024-09-05T14:30:00+09:00
 **Status:** pending
 
-## Content
+## 内容
 
-Hello Support Team,
+お世話になっております。
 
-I'm having trouble logging into my dashboard...
+ダッシュボードにログインできない問題が発生しています...
 
-## Notes
+## メモ
 
-<!-- Add your resolution notes here -->
+<!-- 解決メモをここに追加 -->
 ```
 
-### 📊 Generate Daily Summary
+### 📊 日次サマリーの生成
 
-1. **Manual generation:**
-   - Command Palette → "Generate Daily Summary"
-   - Or use the settings to enable auto-generation
+1. **手動生成:**
+   - コマンドパレット → "日次サマリーを生成"
+   - または設定で自動生成を有効化
 
-2. **Summary includes:**
-   - Total email count and status breakdown
-   - Category and priority distribution
-   - Peak hour analysis
-   - Top senders and keywords
-   - Chronological email timeline
+2. **サマリーに含まれる内容:**
+   - メール総数とステータス内訳
+   - カテゴリと優先度の分布
+   - ピーク時間分析
+   - トップ送信者とキーワード
+   - 時系列メールタイムライン
 
-### 🔍 Knowledge Extraction
+### 🔍 ナレッジ抽出
 
-1. **Mark email as resolved:**
-   - Update the `status` field to "resolved"
-   - Add resolution details in the "Notes" section
+1. **メールを解決済みにマーク:**
+   - `status` フィールドを "resolved" に更新
+   - "メモ" セクションに解決詳細を追加
 
-2. **Extract knowledge:**
-   - Command Palette → "Extract Knowledge"
-   - Select the resolved email
-   - System creates a reusable knowledge entry
+2. **ナレッジを抽出:**
+   - コマンドパレット → "ナレッジを抽出"
+   - 解決済みメールを選択
+   - システムが再利用可能なナレッジエントリを作成
 
-### 📚 CLI Tools Usage
+### 📚 CLI ツールの使用方法
 
 #### Email Parser CLI
 
@@ -215,46 +226,44 @@ npm run cli:knowledge-base -- --search "login issues"
 npm run cli:knowledge-base -- --extract email-123 --output knowledge.md
 ```
 
-## ⚙️ Configuration
+## ⚙️ 設定
 
-### Plugin Settings
+### プラグイン設定
 
-Access plugin settings via: **Settings → Email Inquiry Management**
+設定へのアクセス: **設定 → Email Inquiry Management**
 
-#### Folder Settings
-- **Emails Folder**: `Emails` (where captured emails are stored)
-- **Summaries Folder**: `Summaries` (where daily summaries are saved)
-- **Knowledge Folder**: `Knowledge` (where extracted knowledge is stored)
+#### フォルダ設定
+- **メールフォルダ**: `Emails` (キャプチャしたメールの保存先)
+- **サマリーフォルダ**: `Summaries` (日次サマリーの保存先)
+- **ナレッジフォルダ**: `Knowledge` (抽出したナレッジの保存先)
 
-#### Default Values
-- **Default Category**: Support, Sales, Billing, Technical, Feedback, Other
-- **Default Priority**: Low, Medium, High, Urgent
+#### デフォルト値
+- **デフォルトカテゴリ**: 仕様、障害、移行/VUP、その他
+- **デフォルト優先度**: 低、中、高、緊急
 
-#### Automation
-- **Auto-generate Daily Summaries**: ✅ Enabled
-- **Auto-extract Knowledge**: ❌ Disabled (manual review recommended)
+#### 自動化
+- **日次サマリーの自動生成**: ✅ 有効
+- **ナレッジの自動抽出**: ❌ 無効 (手動レビューを推奨)
 
-#### File Handling
-- **Max Attachment Size**: 10MB
-- **Enable Notifications**: ✅ Enabled
+#### ファイル処理
+- **最大添付ファイルサイズ**: 10MB
+- **通知を有効化**: ✅ 有効
 
-### Advanced Configuration
+### 詳細設定
 
-#### Custom Categories
+#### カスタムカテゴリ
 
-Edit the plugin settings to add custom categories:
+プラグイン設定でカスタムカテゴリを追加:
 
 ```json
 {
-  "categories": [
-    "support",
-    "sales", 
-    "billing",
-    "technical",
-    "feedback",
-    "bug-report",
-    "feature-request",
-    "other"
+  "customCategories": [
+    "バグレポート",
+    "機能要求", 
+    "アカウント問題",
+    "会計相談",
+    "セキュリティ",
+    "運用相談"
   ]
 }
 ```
@@ -268,7 +277,7 @@ Set up automated workflows using Obsidian's Templater plugin:
 3. **Priority assignment** based on sender or keywords
 4. **Follow-up reminders** for pending emails
 
-## 🎨 Customization
+## 🎨 カスタマイズ
 
 ### Custom CSS Styling
 
@@ -333,7 +342,7 @@ priority: "medium"
 <!-- Resolution details -->
 ```
 
-## 🤝 Workflow Examples
+## 🤝 ワークフロー例
 
 ### Customer Support Workflow
 
@@ -361,7 +370,7 @@ priority: "medium"
 4. **Document solution** → Detailed resolution notes
 5. **Create knowledge entry** → Reusable troubleshooting guide
 
-## 📈 Analytics & Reporting
+## 📈 分析とレポート
 
 ### Built-in Metrics
 
@@ -389,9 +398,9 @@ WHERE receivedDate >= date(today) - dur(7 days)
 GROUP BY status
 ```
 
-## 🛠️ Development
+## 🛠️ 開発
 
-### Building from Source
+### ソースからのビルド
 
 ```bash
 # Clone the repository
@@ -431,7 +440,7 @@ tests/
 └── unit/             # Unit tests
 ```
 
-### Contributing
+### コントリビュート
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -440,7 +449,7 @@ tests/
 5. Push to branch (`git push origin feature/amazing-feature`)
 6. Open a Pull Request
 
-## 🐛 Troubleshooting
+## 🐛 トラブルシューティング
 
 ### Common Issues
 
@@ -489,18 +498,18 @@ For large email volumes (>1000 emails):
 3. **Use date-range filtering** in summaries
 4. **Split large MBOX files** before import
 
-## 📄 License
+## 📄 ライセンス
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 🙏 謝辞
 
 - Built with [Obsidian Plugin API](https://github.com/obsidianmd/obsidian-api)
 - Inspired by customer support best practices
 - Email parsing powered by industry-standard libraries
 - Icons from [Lucide](https://lucide.dev/)
 
-## 📞 Support & Community
+## 📞 サポートとコミュニティ
 
 - **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/your-repo/discussions)  
@@ -509,6 +518,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for the Obsidian community**
+**Obsidian コミュニティのために ❤️ を込めて作られました**
 
-*Transform your email chaos into organized knowledge. Start building your email inquiry knowledge base today!*
+*メールの混沌を整理された知識に変換。今日からメール問い合わせナレッジベースの構築を始めましょう！*
