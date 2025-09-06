@@ -1,0 +1,109 @@
+{
+  "commands": {
+    "capture_email": "メールをキャプチャ",
+    "generate_daily_summary": "日次サマリーを生成",
+    "search_knowledge_base": "知識ベースを検索",
+    "bulk_import_emails": "メールの一括インポート"
+  },
+  "ribbon": {
+    "capture_email": "メールをキャプチャ"
+  },
+  "modal": {
+    "capture_email": {
+      "title": "メール問い合わせをキャプチャ",
+      "sender_email": "送信者メール",
+      "sender_name": "送信者名",
+      "subject": "件名",
+      "category": "カテゴリ",
+      "priority": "優先度",
+      "tags": "タグ",
+      "email_content": "メール内容",
+      "capture_button": "メールをキャプチャ",
+      "cancel_button": "キャンセル",
+      "placeholder": {
+        "sender_email": "customer@example.com",
+        "sender_name": "田中太郎（任意）",
+        "subject": "ログイン問題 - ダッシュボードにアクセスできません",
+        "tags": "ログイン問題, ダッシュボード, 緊急",
+        "email_content": "メール内容をここに貼り付けてください..."
+      },
+      "validation": {
+        "sender_email_required": "送信者メールは必須です",
+        "sender_email_invalid": "有効なメールアドレスを入力してください",
+        "subject_required": "件名は必須です",
+        "content_required": "メール内容は必須です"
+      }
+    }
+  },
+  "categories": {
+    "specification": "仕様",
+    "issue": "障害",
+    "migration_vup": "移行/VUP",
+    "other": "その他"
+  },
+  "priorities": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "urgent": "緊急"
+  },
+  "settings": {
+    "title": "メール問い合わせ管理",
+    "folders": {
+      "title": "フォルダ設定",
+      "emails_folder": "メールフォルダ",
+      "summaries_folder": "サマリーフォルダ",
+      "knowledge_folder": "ナレッジフォルダ",
+      "emails_folder_desc": "キャプチャしたメールを保存するフォルダ",
+      "summaries_folder_desc": "日次サマリーを保存するフォルダ",
+      "knowledge_folder_desc": "抽出したナレッジを保存するフォルダ"
+    },
+    "categories": {
+      "title": "カスタムカテゴリ",
+      "add_category": "カスタムカテゴリを追加",
+      "add_category_desc": "メール分類用の新しいカテゴリを作成",
+      "add_button": "追加",
+      "category_placeholder": "カテゴリ名を入力...",
+      "no_custom_categories": "カスタムカテゴリが定義されていません。デフォルトオプションを拡張するためにカテゴリを追加してください。",
+      "manage_desc": "×ボタンをクリックしてカテゴリを削除できます。既存のメールには影響しません。",
+      "delete_confirm": "カテゴリ '{{category}}' を削除しますか？この操作は元に戻せません。",
+      "delete_tooltip": "このカテゴリを削除"
+    },
+    "defaults": {
+      "title": "デフォルト値",
+      "category": "デフォルトカテゴリ",
+      "priority": "デフォルト優先度",
+      "category_desc": "新しいメールのデフォルトカテゴリ",
+      "priority_desc": "新しいメールのデフォルト優先度"
+    },
+    "automation": {
+      "title": "自動化設定",
+      "auto_summary": "日次サマリーの自動生成",
+      "auto_knowledge": "ナレッジの自動抽出",
+      "enable_notifications": "通知を有効化",
+      "auto_summary_desc": "日次サマリーを自動的に生成します",
+      "auto_knowledge_desc": "解決済みメールからナレッジを自動抽出します",
+      "enable_notifications_desc": "プラグインの動作に対して通知を表示します"
+    },
+    "advanced": {
+      "title": "詳細設定",
+      "max_attachment_size": "最大添付ファイルサイズ (MB)",
+      "language": "言語",
+      "max_attachment_size_desc": "添付ファイルの最大サイズ",
+      "language_desc": "プラグインインターフェースの言語"
+    }
+  },
+  "notices": {
+    "email_captured": "メールをキャプチャしました: {{path}}",
+    "generating_summary": "{{date}}の日次サマリーを生成中...",
+    "summary_generated": "日次サマリーが正常に生成されました",
+    "error_generating_summary": "サマリー生成エラー: {{error}}",
+    "knowledge_search_coming_soon": "知識検索機能は近日公開予定です...",
+    "bulk_import_coming_soon": "一括インポート機能は近日公開予定です...",
+    "settings_saved": "設定が正常に保存されました"
+  },
+  "languages": {
+    "en": "English",
+    "ja": "日本語"
+  }
+}

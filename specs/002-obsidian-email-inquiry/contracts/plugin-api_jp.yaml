@@ -1,0 +1,427 @@
+openapi: 3.0.0
+info:
+  title: Obsidianメール問い合わせプラグインAPI
+  version: 1.0.0
+  description: Obsidianメール問い合わせ管理プラグインのコマンドとイベント契約
+
+paths:
+  /commands/capture-email:
+    post:
+      summary: 新しいメール問い合わせを取り込む
+      operationId: captureEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailCaptureRequest'
+      responses:
+        '201':
+          description: メール取り込み成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailCaptureResponse'
+        '400':
+          description: 無効なメールデータ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /commands/generate-summary:
+    post:
+      summary: 日次サマリーを生成
+      operationId: generateDailySummary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummaryRequest'
+      responses:
+        '200':
+          description: サマリー生成完了
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySummary'
+        '404':
+          description: 該当日のメールなし
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /commands/search-knowledge:
+    post:
+      summary: ナレッジベースを検索
+      operationId: searchKnowledge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: 検索結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /commands/bulk-import:
+    post:
+      summary: メールを一括インポート
+      operationId: bulkImport
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BulkImportRequest'
+      responses:
+        '202':
+          description: インポート開始
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkImportResponse'
+
+  /commands/resolve-email:
+    post:
+      summary: メールに解決策を追加
+      operationId: resolveEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolutionRequest'
+      responses:
+        '200':
+          description: 解決策追加完了
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolutionResponse'
+
+components:
+  schemas:
+    EmailCaptureRequest:
+      type: object
+      required:
+        - sender
+        - subject
+        - body
+        - receivedDate
+      properties:
+        sender:
+          type: string
+          format: email
+          description: 送信者メールアドレス
+        senderName:
+          type: string
+          description: 送信者名
+        subject:
+          type: string
+          maxLength: 200
+          description: メール件名
+        body:
+          type: string
+          description: メール本文
+        receivedDate:
+          type: string
+          format: date-time
+          description: 受信日時
+        tags:
+          type: array
+          items:
+            type: string
+          description: タグ配列
+        category:
+          $ref: '#/components/schemas/EmailCategory'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+
+    EmailCaptureResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 生成されたメールID
+        path:
+          type: string
+          description: 作成されたノートのパス
+        status:
+          $ref: '#/components/schemas/EmailStatus'
+
+    SummaryRequest:
+      type: object
+      required:
+        - date
+      properties:
+        date:
+          type: string
+          format: date
+          description: サマリー対象日（YYYY-MM-DD）
+        includeResolved:
+          type: boolean
+          default: true
+          description: 解決済みメールを含む
+        includeArchived:
+          type: boolean
+          default: false
+          description: アーカイブ済みメールを含む
+
+    DailySummary:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: サマリー日付
+        emailCount:
+          type: integer
+          description: 総メール数
+        statusBreakdown:
+          type: object
+          properties:
+            pending:
+              type: integer
+              description: 保留中
+            inProgress:
+              type: integer
+              description: 処理中
+            resolved:
+              type: integer
+              description: 解決済み
+            archived:
+              type: integer
+              description: アーカイブ済み
+        categoryBreakdown:
+          type: object
+          additionalProperties:
+            type: integer
+          description: カテゴリ別内訳
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailSummaryItem'
+
+    EmailSummaryItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: メールID
+        sender:
+          type: string
+          description: 送信者
+        subject:
+          type: string
+          description: 件名
+        time:
+          type: string
+          description: 時刻（HH:MM）
+        status:
+          $ref: '#/components/schemas/EmailStatus'
+        priority:
+          $ref: '#/components/schemas/Priority'
+
+    SearchRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: 検索クエリ
+        tags:
+          type: array
+          items:
+            type: string
+          description: タグフィルター
+        category:
+          $ref: '#/components/schemas/EmailCategory'
+        dateFrom:
+          type: string
+          format: date
+          description: 開始日
+        dateTo:
+          type: string
+          format: date
+          description: 終了日
+        limit:
+          type: integer
+          default: 50
+          maximum: 200
+          description: 結果上限
+
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        totalCount:
+          type: integer
+          description: 総結果数
+
+    SearchResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [email, knowledge]
+          description: 結果タイプ
+        id:
+          type: string
+          description: ID
+        title:
+          type: string
+          description: タイトル
+        excerpt:
+          type: string
+          description: 抜粋
+        score:
+          type: number
+          description: 関連度スコア
+        path:
+          type: string
+          description: ノートパス
+
+    BulkImportRequest:
+      type: object
+      required:
+        - format
+        - file
+      properties:
+        format:
+          type: string
+          enum: [eml, mbox, csv]
+          description: ファイル形式
+        file:
+          type: string
+          format: binary
+          description: インポートファイル
+        tagAll:
+          type: array
+          items:
+            type: string
+          description: 全てに適用するタグ
+        category:
+          $ref: '#/components/schemas/EmailCategory'
+
+    BulkImportResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+          description: ジョブID
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+          description: インポート状況
+        totalEmails:
+          type: integer
+          description: 総メール数
+
+    ResolutionRequest:
+      type: object
+      required:
+        - emailId
+        - summary
+        - outcome
+      properties:
+        emailId:
+          type: string
+          description: 対象メールID
+        summary:
+          type: string
+          maxLength: 200
+          description: 解決要約
+        details:
+          type: string
+          description: 詳細
+        outcome:
+          $ref: '#/components/schemas/ResolutionOutcome'
+        followUpRequired:
+          type: boolean
+          description: フォローアップ要否
+        followUpDate:
+          type: string
+          format: date
+          description: フォローアップ日
+        extractToKnowledge:
+          type: boolean
+          description: ナレッジ抽出フラグ
+
+    ResolutionResponse:
+      type: object
+      properties:
+        resolutionId:
+          type: string
+          description: 解決ノートID
+        emailStatus:
+          $ref: '#/components/schemas/EmailStatus'
+        knowledgeEntryId:
+          type: string
+          description: 生成されたナレッジエントリID
+
+    EmailStatus:
+      type: string
+      enum: [pending, in_progress, resolved, archived]
+      description: メールステータス
+
+    EmailCategory:
+      type: string
+      enum: [support, sales, billing, technical, feedback, other]
+      description: メールカテゴリ
+
+    Priority:
+      type: string
+      enum: [low, medium, high, urgent]
+      description: 優先度
+
+    ResolutionOutcome:
+      type: string
+      enum: [solved, workaround, not_resolved, duplicate, no_action]
+      description: 解決結果
+
+    Attachment:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: ファイル名
+        mimeType:
+          type: string
+          description: MIMEタイプ
+        size:
+          type: integer
+          description: ファイルサイズ
+        content:
+          type: string
+          format: byte
+          description: ファイル内容
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+        details:
+          type: object
+          description: 詳細情報

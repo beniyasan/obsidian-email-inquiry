@@ -1,0 +1,52 @@
+{
+  "name": "obsidian-email-inquiry",
+  "version": "1.0.0",
+  "description": "Obsidian plugin for managing email inquiries with daily summaries and knowledge base",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write 'src/**/*.ts' 'tests/**/*.ts'",
+    "cli:email-parser": "node dist/cli/email-parser-cli.js",
+    "cli:daily-summary": "node dist/cli/summary-cli.js",
+    "cli:knowledge-base": "node dist/cli/knowledge-cli.js"
+  },
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "email",
+    "inquiry",
+    "knowledge-base",
+    "customer-support"
+  ],
+  "author": "Email Inquiry Management Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.5",
+    "@types/node": "^18.17.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "^0.19.4",
+    "eslint": "^8.49.0",
+    "jest": "^29.7.0",
+    "obsidian": "^1.4.13",
+    "prettier": "^3.0.3",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "mailparser": "^3.6.5",
+    "node-mbox": "^2.0.0",
+    "csv-parser": "^3.0.0",
+    "commander": "^11.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

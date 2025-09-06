@@ -1,0 +1,368 @@
+openapi: 3.0.0
+info:
+  title: Obsidian Email Inquiry Plugin API
+  version: 1.0.0
+  description: Command and event contracts for the Obsidian email inquiry management plugin
+
+paths:
+  /commands/capture-email:
+    post:
+      summary: Capture new email inquiry
+      operationId: captureEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailCaptureRequest'
+      responses:
+        '201':
+          description: Email captured successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailCaptureResponse'
+        '400':
+          description: Invalid email data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /commands/generate-summary:
+    post:
+      summary: Generate daily summary
+      operationId: generateDailySummary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummaryRequest'
+      responses:
+        '200':
+          description: Summary generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySummary'
+        '404':
+          description: No emails for date
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /commands/search-knowledge:
+    post:
+      summary: Search knowledge base
+      operationId: searchKnowledge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /commands/bulk-import:
+    post:
+      summary: Import emails in bulk
+      operationId: bulkImport
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BulkImportRequest'
+      responses:
+        '202':
+          description: Import started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkImportResponse'
+
+  /commands/resolve-email:
+    post:
+      summary: Add resolution to email
+      operationId: resolveEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolutionRequest'
+      responses:
+        '200':
+          description: Resolution added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolutionResponse'
+
+components:
+  schemas:
+    EmailCaptureRequest:
+      type: object
+      required:
+        - sender
+        - subject
+        - body
+        - receivedDate
+      properties:
+        sender:
+          type: string
+          format: email
+        senderName:
+          type: string
+        subject:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+        receivedDate:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+        category:
+          $ref: '#/components/schemas/EmailCategory'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+
+    EmailCaptureResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        path:
+          type: string
+        status:
+          $ref: '#/components/schemas/EmailStatus'
+
+    SummaryRequest:
+      type: object
+      required:
+        - date
+      properties:
+        date:
+          type: string
+          format: date
+        includeResolved:
+          type: boolean
+          default: true
+        includeArchived:
+          type: boolean
+          default: false
+
+    DailySummary:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        emailCount:
+          type: integer
+        statusBreakdown:
+          type: object
+          properties:
+            pending:
+              type: integer
+            inProgress:
+              type: integer
+            resolved:
+              type: integer
+            archived:
+              type: integer
+        categoryBreakdown:
+          type: object
+          additionalProperties:
+            type: integer
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailSummaryItem'
+
+    EmailSummaryItem:
+      type: object
+      properties:
+        id:
+          type: string
+        sender:
+          type: string
+        subject:
+          type: string
+        time:
+          type: string
+        status:
+          $ref: '#/components/schemas/EmailStatus'
+        priority:
+          $ref: '#/components/schemas/Priority'
+
+    SearchRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        category:
+          $ref: '#/components/schemas/EmailCategory'
+        dateFrom:
+          type: string
+          format: date
+        dateTo:
+          type: string
+          format: date
+        limit:
+          type: integer
+          default: 50
+          maximum: 200
+
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        totalCount:
+          type: integer
+
+    SearchResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [email, knowledge]
+        id:
+          type: string
+        title:
+          type: string
+        excerpt:
+          type: string
+        score:
+          type: number
+        path:
+          type: string
+
+    BulkImportRequest:
+      type: object
+      required:
+        - format
+        - file
+      properties:
+        format:
+          type: string
+          enum: [eml, mbox, csv]
+        file:
+          type: string
+          format: binary
+        tagAll:
+          type: array
+          items:
+            type: string
+        category:
+          $ref: '#/components/schemas/EmailCategory'
+
+    BulkImportResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+        totalEmails:
+          type: integer
+
+    ResolutionRequest:
+      type: object
+      required:
+        - emailId
+        - summary
+        - outcome
+      properties:
+        emailId:
+          type: string
+        summary:
+          type: string
+          maxLength: 200
+        details:
+          type: string
+        outcome:
+          $ref: '#/components/schemas/ResolutionOutcome'
+        followUpRequired:
+          type: boolean
+        followUpDate:
+          type: string
+          format: date
+        extractToKnowledge:
+          type: boolean
+
+    ResolutionResponse:
+      type: object
+      properties:
+        resolutionId:
+          type: string
+        emailStatus:
+          $ref: '#/components/schemas/EmailStatus'
+        knowledgeEntryId:
+          type: string
+
+    EmailStatus:
+      type: string
+      enum: [pending, in_progress, resolved, archived]
+
+    EmailCategory:
+      type: string
+      enum: [support, sales, billing, technical, feedback, other]
+
+    Priority:
+      type: string
+      enum: [low, medium, high, urgent]
+
+    ResolutionOutcome:
+      type: string
+      enum: [solved, workaround, not_resolved, duplicate, no_action]
+
+    Attachment:
+      type: object
+      properties:
+        filename:
+          type: string
+        mimeType:
+          type: string
+        size:
+          type: integer
+        content:
+          type: string
+          format: byte
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object

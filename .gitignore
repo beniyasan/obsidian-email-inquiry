@@ -1,0 +1,96 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+*.js.map
+.tsbuildinfo
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+.temp/
+*.tmp
+
+# Documentation and test files (not essential for plugin operation)
+/README-*.md
+/INSTALLATION-GUIDE.md
+/QUICK-INSTALL.md
+/test-*.js
+/test-*.html
+/create-icons.html
+/test-page.html
+/test.html
+
+# Obsidian test vault (if included in repo)
+/test-vault/
+/obsidian-test/
+
+# Development notes and specs (optional - remove if you want to include specs)
+# /specs/
+
+# Personal notes
+/notes/
+/TODO.md
+/NOTES.md
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Package manager files (keep package-lock.json for reproducible builds)
+yarn.lock
+pnpm-lock.yaml
+
+# Optional: Exclude compiled main.js if you want users to build from source
+# main.js
+
+# Keep these files (DO NOT ignore):
+# - src/           (source code)
+# - package.json   (dependencies)
+# - package-lock.json (lock file)
+# - tsconfig.json  (TypeScript config)
+# - esbuild.config.mjs (build config)
+# - manifest.json  (plugin manifest)
+# - README.md      (main documentation)
+# - LICENSE        (if you have one)
+# - CLAUDE.md      (development notes)

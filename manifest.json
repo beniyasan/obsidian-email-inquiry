@@ -1,0 +1,11 @@
+{
+  "id": "email-inquiry-management",
+  "name": "Email Inquiry Management",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "Manage email inquiries with daily summaries and knowledge base accumulation",
+  "author": "Email Inquiry Team",
+  "authorUrl": "",
+  "fundingUrl": "",
+  "isDesktopOnly": false
+}

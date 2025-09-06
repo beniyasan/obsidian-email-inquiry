@@ -1,0 +1,109 @@
+{
+  "commands": {
+    "capture_email": "Capture Email",
+    "generate_daily_summary": "Generate Daily Summary", 
+    "search_knowledge_base": "Search Knowledge Base",
+    "bulk_import_emails": "Bulk Import Emails"
+  },
+  "ribbon": {
+    "capture_email": "Capture Email"
+  },
+  "modal": {
+    "capture_email": {
+      "title": "Capture Email Inquiry",
+      "sender_email": "Sender Email",
+      "sender_name": "Sender Name",
+      "subject": "Subject",
+      "category": "Category",
+      "priority": "Priority", 
+      "tags": "Tags",
+      "email_content": "Email Content",
+      "capture_button": "Capture Email",
+      "cancel_button": "Cancel",
+      "placeholder": {
+        "sender_email": "customer@example.com",
+        "sender_name": "John Customer (optional)",
+        "subject": "Login Issue - Cannot Access Dashboard",
+        "tags": "login-issue, dashboard, urgent",
+        "email_content": "Paste email content here..."
+      },
+      "validation": {
+        "sender_email_required": "Sender email is required",
+        "sender_email_invalid": "Please enter a valid email address",
+        "subject_required": "Subject is required",
+        "content_required": "Email content is required"
+      }
+    }
+  },
+  "categories": {
+    "specification": "Specification",
+    "issue": "Issue",
+    "migration_vup": "Migration/VUP",
+    "other": "Other"
+  },
+  "priorities": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  "settings": {
+    "title": "Email Inquiry Management",
+    "folders": {
+      "title": "Folder Settings",
+      "emails_folder": "Emails Folder",
+      "summaries_folder": "Summaries Folder", 
+      "knowledge_folder": "Knowledge Folder",
+      "emails_folder_desc": "Folder where captured emails will be stored",
+      "summaries_folder_desc": "Folder where daily summaries will be saved",
+      "knowledge_folder_desc": "Folder where extracted knowledge will be stored"
+    },
+    "categories": {
+      "title": "Custom Categories",
+      "add_category": "Add Custom Category",
+      "add_category_desc": "Create a new category for email classification",
+      "add_button": "Add",
+      "category_placeholder": "Enter category name...",
+      "no_custom_categories": "No custom categories defined. Add categories to extend the default options.",
+      "manage_desc": "Click the × button to delete a category. This will not affect existing emails.",
+      "delete_confirm": "Are you sure you want to delete the category '{{category}}'? This action cannot be undone.",
+      "delete_tooltip": "Delete this category"
+    },
+    "defaults": {
+      "title": "Default Values",
+      "category": "Default Category",
+      "priority": "Default Priority",
+      "category_desc": "Default category for new emails",
+      "priority_desc": "Default priority for new emails"
+    },
+    "automation": {
+      "title": "Automation Settings",
+      "auto_summary": "Auto-generate Daily Summaries",
+      "auto_knowledge": "Auto-extract Knowledge",
+      "enable_notifications": "Enable Notifications",
+      "auto_summary_desc": "Automatically generate daily summaries",
+      "auto_knowledge_desc": "Automatically extract knowledge from resolved emails",
+      "enable_notifications_desc": "Show notifications for plugin actions"
+    },
+    "advanced": {
+      "title": "Advanced Settings",
+      "max_attachment_size": "Max Attachment Size (MB)",
+      "language": "Language",
+      "max_attachment_size_desc": "Maximum file size for attachments",
+      "language_desc": "Plugin interface language"
+    }
+  },
+  "notices": {
+    "email_captured": "Email captured: {{path}}",
+    "generating_summary": "Generating daily summary for {{date}}...",
+    "summary_generated": "Daily summary generated successfully",
+    "error_generating_summary": "Error generating summary: {{error}}",
+    "knowledge_search_coming_soon": "Knowledge search coming soon...",
+    "bulk_import_coming_soon": "Bulk import coming soon...",
+    "settings_saved": "Settings saved successfully"
+  },
+  "languages": {
+    "en": "English",
+    "ja": "日本語"
+  }
+}
