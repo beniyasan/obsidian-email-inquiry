@@ -1,6 +1,6 @@
 /**
  * Email Parser Library
- * 
+ *
  * Standalone library for parsing email content from various formats.
  * Can be used independently of the Obsidian plugin.
  */
@@ -11,17 +11,20 @@ export { EmailParserCli } from '../../cli/email-parser-cli';
 
 // Core parsing functions
 export class EmailParser {
-  static parseEML(content: string) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static parseEML(_content: string) {
     // Implementation would be extracted from CLI
     throw new Error('Implementation needed');
   }
 
-  static parseMBOX(content: string) {
-    // Implementation would be extracted from CLI  
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static parseMBOX(_content: string) {
+    // Implementation would be extracted from CLI
     throw new Error('Implementation needed');
   }
 
-  static parseCSV(content: string, mapping?: Record<string, string>) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static parseCSV(_content: string, _mapping?: Record<string, string>) {
     // Implementation would be extracted from CLI
     throw new Error('Implementation needed');
   }

@@ -1,14 +1,14 @@
 /**
  * EmailCaptureService
- * 
+ *
  * Service for capturing email inquiries and creating Obsidian notes
  * with proper metadata and file organization.
  */
 
 import { EmailInquiryModel } from '../models/EmailInquiry';
 import { EmailCaptureRequest, EmailCaptureResponse, AttachmentInfo } from '../types/api';
-import { EmailStatus, EmailCategory, Priority } from '../types/enums';
-import { KnowledgeExtractionService, KnowledgeExtractionSettings } from './KnowledgeExtractionService';
+import { Priority } from '../types/enums';
+import { KnowledgeExtractionService } from './KnowledgeExtractionService';
 
 export interface VaultAdapter {
   create(path: string, content: string): Promise<void>;
@@ -30,8 +30,8 @@ export class EmailCaptureService {
   private knowledgeExtractionService?: KnowledgeExtractionService;
 
   constructor(
-    vault: VaultAdapter, 
-    emailsFolder: string = 'Emails', 
+    vault: VaultAdapter,
+    emailsFolder: string = 'Emails',
     searchIndexer?: SearchIndexer,
     knowledgeExtractionService?: KnowledgeExtractionService
   ) {
@@ -51,7 +51,7 @@ export class EmailCaptureService {
 
       // Generate file path
       const filePath = await this.generateFilePath(email);
-      
+
       // Process attachments if any
       if (request.attachments && request.attachments.length > 0) {
         await this.processAttachments(request.attachments, email.id);
@@ -83,7 +83,7 @@ export class EmailCaptureService {
       return {
         id: email.id,
         path: filePath,
-        message: knowledgePath ? 
+        message: knowledgePath ?
           `Email captured successfully. Knowledge extracted to: ${knowledgePath}` :
           'Email captured successfully'
       };
@@ -97,11 +97,11 @@ export class EmailCaptureService {
     if (!request.sender) {
       throw new Error('Sender is required');
     }
-    
+
     if (!request.subject) {
       throw new Error('Subject is required');
     }
-    
+
     if (!request.body) {
       throw new Error('Body is required');
     }
@@ -135,10 +135,10 @@ export class EmailCaptureService {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    
+
     // Create folder structure: [emailsFolder]/YYYY/MM/
     const folderPath = `${this.emailsFolder}/${year}/${month}`;
-    
+
     // Ensure folder exists
     if (!(await this.vault.exists(folderPath))) {
       await this.vault.createFolder(folderPath);
@@ -147,10 +147,10 @@ export class EmailCaptureService {
     // Generate safe filename from subject
     const safeSubject = this.sanitizeFilename(email.subject);
     const timestamp = date.toTimeString().substring(0, 5).replace(':', '-');
-    
+
     let filename = `${day}-${timestamp}-${safeSubject}.md`;
     let filePath = `${folderPath}/${filename}`;
-    
+
     // Ensure unique filename
     let counter = 1;
     while (await this.vault.exists(filePath)) {
@@ -172,7 +172,7 @@ export class EmailCaptureService {
 
   private async processAttachments(attachments: AttachmentInfo[], emailId: string): Promise<void> {
     const attachmentFolder = `${this.emailsFolder}/Attachments/${emailId}`;
-    
+
     if (!(await this.vault.exists(attachmentFolder))) {
       await this.vault.createFolder(attachmentFolder);
     }
@@ -218,7 +218,7 @@ export class EmailCaptureService {
   private generateFrontmatter(email: EmailInquiryModel): string {
     const frontmatter = email.toFrontmatter();
     const yamlLines: string[] = [];
-    
+
     for (const [key, value] of Object.entries(frontmatter)) {
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
@@ -233,7 +233,7 @@ export class EmailCaptureService {
         }
       }
     }
-    
+
     return yamlLines.join('\n');
   }
 }

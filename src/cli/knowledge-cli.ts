@@ -2,12 +2,12 @@
 
 /**
  * Knowledge Base CLI
- * 
+ *
  * Command-line interface for searching and extracting knowledge from email inquiries.
  */
 
 import * as fs from 'fs';
-import { EmailInquiryModel } from '../models/EmailInquiry';
+// import { EmailInquiryModel } from '../models/EmailInquiry'; // Unused
 
 interface KnowledgeOptions {
   query?: string;
@@ -36,7 +36,7 @@ class KnowledgeBaseCli {
   async run(args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
     try {
       const options = this.parseArguments(args);
-      
+
       if (options.help) {
         return {
           exitCode: 0,
@@ -97,7 +97,7 @@ class KnowledgeBaseCli {
 
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      
+
       switch (arg) {
         case '--search':
         case '-s':
@@ -116,7 +116,7 @@ class KnowledgeBaseCli {
           options.output = args[++i];
           break;
         case '--format':
-        case '-f':
+        case '-f': {
           const format = args[++i];
           if (['json', 'markdown'].includes(format)) {
             options.format = format as 'json' | 'markdown';
@@ -124,6 +124,7 @@ class KnowledgeBaseCli {
             throw new Error(`Invalid format: ${format}`);
           }
           break;
+        }
         case '--limit':
         case '-l':
           options.limit = parseInt(args[++i]);
@@ -149,7 +150,7 @@ class KnowledgeBaseCli {
   private async searchKnowledge(query: string, options: KnowledgeOptions): Promise<string> {
     // Placeholder - in real implementation would search knowledge base
     const results: KnowledgeEntry[] = [];
-    
+
     const searchResults = {
       query,
       results: results.slice(0, options.limit),
@@ -174,12 +175,12 @@ class KnowledgeBaseCli {
     return this.formatKnowledgeEntry(knowledgeEntry, options.format);
   }
 
-  private formatSearchResults(results: any, format: 'json' | 'markdown'): string {
+  private formatSearchResults(results: any, format: 'json' | 'markdown'): string { // eslint-disable-line @typescript-eslint/no-explicit-any
     switch (format) {
       case 'json':
         return JSON.stringify(results, null, 2);
-        
-      case 'markdown':
+
+      case 'markdown': {
         const lines = [
           `# Knowledge Search Results`,
           '',
@@ -202,7 +203,8 @@ class KnowledgeBaseCli {
         }
 
         return lines.join('\n');
-        
+      }
+
       default:
         throw new Error(`Unsupported format: ${format}`);
     }
@@ -212,7 +214,7 @@ class KnowledgeBaseCli {
     switch (format) {
       case 'json':
         return JSON.stringify(entry, null, 2);
-        
+
       case 'markdown':
         return [
           '---',
@@ -236,7 +238,7 @@ class KnowledgeBaseCli {
           entry.solution,
           ''
         ].join('\n');
-        
+
       default:
         throw new Error(`Unsupported format: ${format}`);
     }
@@ -283,7 +285,7 @@ COMMANDS:
 if (require.main === module) {
   const cli = new KnowledgeBaseCli();
   const args = process.argv.slice(2);
-  
+
   cli.run(args).then(result => {
     if (result.stdout) {
       process.stdout.write(result.stdout);

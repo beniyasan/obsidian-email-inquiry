@@ -1,6 +1,6 @@
 /**
  * EmailInquiry Model
- * 
+ *
  * Core data model representing a single email inquiry in the system.
  * Based on data-model.md specifications.
  */
@@ -27,16 +27,16 @@ export interface EmailInquiry {
   threadId?: string;             // Thread grouping identifier
   priority?: Priority;           // Urgency level
   attachments?: AttachmentRef[]; // References to attachment files
-  
+
   // Relationships
   relatedEmails?: string[];      // IDs of related emails
   knowledgeEntries?: string[];   // IDs of linked knowledge entries
   resolutionNoteId?: string;     // ID of resolution note
-  
+
   // Content (stored in note body)
   body: string;                  // Email content in markdown
   rawContent?: string;           // Original email format preserved
-  
+
   // Metadata timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -59,7 +59,7 @@ export class EmailInquiryModel {
   }): EmailInquiryModel {
     const id = this.generateId();
     const now = new Date();
-    
+
     const emailInquiry: EmailInquiry = {
       id,
       sender: params.sender,
@@ -170,7 +170,7 @@ export class EmailInquiryModel {
     if (!this.data.subject) errors.push('Subject is required');
     if (!this.data.body) errors.push('Body is required');
     if (!this.data.receivedDate) errors.push('Received date is required');
-    
+
     if (this.data.sender && !this.isValidEmail(this.data.sender)) {
       errors.push('Sender must be a valid email address');
     }
@@ -187,7 +187,7 @@ export class EmailInquiryModel {
     return { ...this.data };
   }
 
-  toFrontmatter(): Record<string, any> {
+  toFrontmatter(): Record<string, any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     return {
       id: this.data.id,
       sender: this.data.sender,
@@ -208,7 +208,7 @@ export class EmailInquiryModel {
     };
   }
 
-  static fromJSON(data: any): EmailInquiryModel {
+  static fromJSON(data: any): EmailInquiryModel { // eslint-disable-line @typescript-eslint/no-explicit-any
     const emailInquiry: EmailInquiry = {
       ...data,
       receivedDate: new Date(data.receivedDate),

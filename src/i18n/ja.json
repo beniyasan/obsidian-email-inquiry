@@ -97,6 +97,7 @@
     "email_captured": "メールをキャプチャしました: {{path}}",
     "generating_summary": "{{date}}の日次サマリーを生成中...",
     "summary_generated": "日次サマリーが正常に生成されました",
+    "summary_generated_with_path": "日次サマリーが生成されました ({{count}}件): {{path}}",
     "error_generating_summary": "サマリー生成エラー: {{error}}",
     "knowledge_search_coming_soon": "知識検索機能は近日公開予定です...",
     "bulk_import_coming_soon": "一括インポート機能は近日公開予定です...",

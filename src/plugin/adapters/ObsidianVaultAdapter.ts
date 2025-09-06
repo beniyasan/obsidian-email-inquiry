@@ -1,11 +1,11 @@
 /**
  * ObsidianVaultAdapter
- * 
+ *
  * Adapter class that implements VaultAdapter interface for Obsidian Vault operations.
  * Provides abstraction layer between services and Obsidian API.
  */
 
-import { Vault, FileManager, TFolder, TFile, TAbstractFile } from 'obsidian';
+import { Vault, FileManager, TFolder, TFile } from 'obsidian';
 import { VaultAdapter } from '../../services/EmailCaptureService';
 
 export class ObsidianVaultAdapter implements VaultAdapter {
@@ -36,10 +36,10 @@ export class ObsidianVaultAdapter implements VaultAdapter {
       // Create parent folders recursively if they don't exist
       const parts = path.split('/');
       let currentPath = '';
-      
+
       for (const part of parts) {
         currentPath = currentPath ? `${currentPath}/${part}` : part;
-        
+
         if (!await this.exists(currentPath)) {
           await this.vault.createFolder(currentPath);
         }
@@ -69,7 +69,7 @@ export class ObsidianVaultAdapter implements VaultAdapter {
       } else {
         arrayBuffer = content as ArrayBuffer;
       }
-      
+
       await this.vault.createBinary(path, arrayBuffer);
     } catch (error) {
       throw new Error(`Failed to write file ${path}: ${error}`);
@@ -82,7 +82,7 @@ export class ObsidianVaultAdapter implements VaultAdapter {
       if (!file || !(file instanceof TFile)) {
         throw new Error(`File not found: ${path}`);
       }
-      
+
       return await this.vault.read(file);
     } catch (error) {
       throw new Error(`Failed to read file ${path}: ${error}`);
@@ -95,7 +95,7 @@ export class ObsidianVaultAdapter implements VaultAdapter {
       if (!file || !(file instanceof TFile)) {
         throw new Error(`File not found: ${path}`);
       }
-      
+
       await this.vault.modify(file, content);
     } catch (error) {
       throw new Error(`Failed to modify file ${path}: ${error}`);
@@ -108,7 +108,7 @@ export class ObsidianVaultAdapter implements VaultAdapter {
       if (!file) {
         throw new Error(`File not found: ${path}`);
       }
-      
+
       await this.vault.delete(file);
     } catch (error) {
       throw new Error(`Failed to delete file ${path}: ${error}`);
@@ -121,9 +121,9 @@ export class ObsidianVaultAdapter implements VaultAdapter {
       if (!folder || !(folder instanceof TFolder)) {
         return [];
       }
-      
+
       const files: string[] = [];
-      
+
       const processFolder = (currentFolder: TFolder) => {
         for (const child of currentFolder.children) {
           if (child instanceof TFile) {
@@ -133,7 +133,7 @@ export class ObsidianVaultAdapter implements VaultAdapter {
           }
         }
       };
-      
+
       processFolder(folder);
       return files;
     } catch (error) {
@@ -148,7 +148,7 @@ export class ObsidianVaultAdapter implements VaultAdapter {
         if (!folder || !(folder instanceof TFolder)) {
           return [];
         }
-        
+
         const files: TFile[] = [];
         const processFolder = (currentFolder: TFolder) => {
           for (const child of currentFolder.children) {
@@ -159,7 +159,7 @@ export class ObsidianVaultAdapter implements VaultAdapter {
             }
           }
         };
-        
+
         processFolder(folder);
         return files;
       } else {
@@ -176,7 +176,7 @@ export class ObsidianVaultAdapter implements VaultAdapter {
       if (!file) {
         throw new Error(`File not found: ${oldPath}`);
       }
-      
+
       await this.fileManager.renameFile(file, newPath);
     } catch (error) {
       throw new Error(`Failed to rename ${oldPath} to ${newPath}: ${error}`);
@@ -189,7 +189,7 @@ export class ObsidianVaultAdapter implements VaultAdapter {
       if (!sourceFile || !(sourceFile instanceof TFile)) {
         throw new Error(`Source file not found: ${sourcePath}`);
       }
-      
+
       const content = await this.vault.read(sourceFile);
       await this.create(destinationPath, content);
     } catch (error) {
