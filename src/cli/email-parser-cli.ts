@@ -2,13 +2,13 @@
 
 /**
  * Email Parser CLI
- * 
+ *
  * Command-line interface for parsing email content from various formats.
  * Supports EML, MBOX, and CSV input formats with multiple output options.
  */
 
 import * as fs from 'fs';
-import * as path from 'path';
+// import * as path from 'path'; // Unused
 import { EmailInquiryModel } from '../models/EmailInquiry';
 import { EmailCategory, Priority } from '../types/enums';
 
@@ -28,7 +28,7 @@ class EmailParserCli {
   async run(args: string[], stdin?: string): Promise<{ exitCode: number; stdout: string; stderr: string }> {
     try {
       const options = this.parseArguments(args);
-      
+
       if (options.help) {
         return {
           exitCode: 0,
@@ -46,7 +46,7 @@ class EmailParserCli {
       }
 
       let inputContent = '';
-      
+
       if (options.input) {
         if (!fs.existsSync(options.input)) {
           return {
@@ -67,7 +67,7 @@ class EmailParserCli {
       }
 
       const result = await this.parseEmail(inputContent, options);
-      
+
       if (options.output) {
         fs.writeFileSync(options.output, result);
         return {
@@ -103,7 +103,7 @@ class EmailParserCli {
 
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      
+
       switch (arg) {
         case '--input':
         case '-i':
@@ -114,7 +114,7 @@ class EmailParserCli {
           options.output = args[++i];
           break;
         case '--format':
-        case '-f':
+        case '-f': {
           const format = args[++i];
           if (['json', 'markdown', 'yaml'].includes(format)) {
             options.format = format as 'json' | 'markdown' | 'yaml';
@@ -122,6 +122,7 @@ class EmailParserCli {
             throw new Error(`Invalid format: ${format}. Supported formats: json, markdown, yaml`);
           }
           break;
+        }
         case '--attachments':
           options.attachments = true;
           break;
@@ -149,9 +150,9 @@ class EmailParserCli {
   private async parseEmail(content: string, options: CliOptions): Promise<string> {
     // Detect email format
     const format = this.detectEmailFormat(content);
-    
+
     let parsedEmails: EmailInquiryModel[] = [];
-    
+
     switch (format) {
       case 'eml':
         parsedEmails = [this.parseEML(content)];
@@ -171,12 +172,12 @@ class EmailParserCli {
     if (content.match(/^From\s+\S+@\S+\s+\w+\s+\w+\s+\d+/m)) {
       return 'mbox';
     }
-    
+
     // Check for EML format (has email headers)
     if (content.includes('From:') || content.includes('To:') || content.includes('Subject:')) {
       return 'eml';
     }
-    
+
     return 'unknown';
   }
 
@@ -198,10 +199,10 @@ class EmailParserCli {
 
   private parseMBOX(content: string): EmailInquiryModel[] {
     const emails: EmailInquiryModel[] = [];
-    
+
     // Split MBOX content by "From " lines
     const emailBlocks = content.split(/^From /m).filter(block => block.trim());
-    
+
     for (const block of emailBlocks) {
       try {
         // Reconstruct the email with proper EML format
@@ -233,7 +234,7 @@ class EmailParserCli {
         if (currentHeader) {
           headers[currentHeader.toLowerCase()] = currentValue.trim();
         }
-        
+
         // Start new header
         const colonIndex = line.indexOf(':');
         if (colonIndex > 0) {
@@ -259,7 +260,7 @@ class EmailParserCli {
 
     // Simple implementation - just take everything after headers
     const bodyContent = parts.slice(1).join('\n\n').trim();
-    
+
     // Check if it looks like HTML
     if (bodyContent.includes('<html') || bodyContent.includes('<body')) {
       return { html: bodyContent };
@@ -274,7 +275,7 @@ class EmailParserCli {
     if (emailMatch) {
       return emailMatch[1];
     }
-    
+
     // Check if it's just an email address
     const simpleEmailMatch = fromHeader.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
     if (simpleEmailMatch) {
@@ -313,10 +314,10 @@ class EmailParserCli {
   private mboxBlockToEML(block: string): string {
     // Remove the "From " line and convert to standard EML format
     const lines = block.split('\n');
-    
+
     // Skip the first line if it looks like MBOX "From " line
     const startIndex = lines[0].match(/^[^\s]+@[^\s]+\s+/) ? 1 : 0;
-    
+
     return lines.slice(startIndex).join('\n');
   }
 
@@ -324,13 +325,13 @@ class EmailParserCli {
     switch (options.format) {
       case 'json':
         return JSON.stringify(emails.map(email => email.toJSON()), null, 2);
-        
+
       case 'markdown':
         return emails.map(email => this.emailToMarkdown(email)).join('\n\n---\n\n');
-        
+
       case 'yaml':
         return emails.map(email => this.emailToYAML(email)).join('\n---\n');
-        
+
       default:
         throw new Error(`Unsupported output format: ${options.format}`);
     }
@@ -339,7 +340,7 @@ class EmailParserCli {
   private emailToMarkdown(email: EmailInquiryModel): string {
     const frontmatter = email.toFrontmatter();
     const yamlLines: string[] = [];
-    
+
     for (const [key, value] of Object.entries(frontmatter)) {
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
@@ -372,7 +373,7 @@ class EmailParserCli {
   private emailToYAML(email: EmailInquiryModel): string {
     const frontmatter = email.toFrontmatter();
     const yamlLines: string[] = [];
-    
+
     for (const [key, value] of Object.entries(frontmatter)) {
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
@@ -387,7 +388,7 @@ class EmailParserCli {
         }
       }
     }
-    
+
     return yamlLines.join('\n');
   }
 
@@ -428,7 +429,7 @@ OUTPUT:
 if (require.main === module) {
   const cli = new EmailParserCli();
   const args = process.argv.slice(2);
-  
+
   cli.run(args).then(result => {
     if (result.stdout) {
       process.stdout.write(result.stdout);

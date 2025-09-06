@@ -2,7 +2,7 @@
 
 /**
  * Daily Summary CLI
- * 
+ *
  * Command-line interface for generating daily summaries of email inquiries.
  */
 
@@ -27,7 +27,7 @@ class DailySummaryCli {
   async run(args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
     try {
       const options = this.parseArguments(args);
-      
+
       if (options.help) {
         return {
           exitCode: 0,
@@ -47,9 +47,9 @@ class DailySummaryCli {
       const date = options.date || new Date().toISOString().split('T')[0];
       const emails = await this.loadEmails(options.input);
       const summary = this.generateSummary(emails, date, options);
-      
+
       const output = this.formatOutput(summary, options.format);
-      
+
       if (options.output) {
         fs.writeFileSync(options.output, output);
         return {
@@ -85,7 +85,7 @@ class DailySummaryCli {
 
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      
+
       switch (arg) {
         case '--date':
         case '-d':
@@ -100,7 +100,7 @@ class DailySummaryCli {
           options.output = args[++i];
           break;
         case '--format':
-        case '-f':
+        case '-f': {
           const format = args[++i];
           if (['json', 'markdown', 'csv'].includes(format)) {
             options.format = format as 'json' | 'markdown' | 'csv';
@@ -108,6 +108,7 @@ class DailySummaryCli {
             throw new Error(`Invalid format: ${format}`);
           }
           break;
+        }
         case '--include-resolved':
           options.includeResolved = true;
           break;
@@ -132,7 +133,8 @@ class DailySummaryCli {
     return options;
   }
 
-  private async loadEmails(inputPath?: string): Promise<EmailInquiryModel[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async loadEmails(_inputPath?: string): Promise<EmailInquiryModel[]> {
     // Placeholder - in real implementation would load emails from vault or files
     return [];
   }
@@ -141,15 +143,15 @@ class DailySummaryCli {
     const filteredEmails = emails.filter(email => {
       const emailDate = email.receivedDate.toISOString().split('T')[0];
       if (emailDate !== date) return false;
-      
+
       if (!options.includeResolved && email.status === EmailStatus.RESOLVED) {
         return false;
       }
-      
+
       if (!options.includeArchived && email.status === EmailStatus.ARCHIVED) {
         return false;
       }
-      
+
       return true;
     });
 
@@ -177,23 +179,23 @@ class DailySummaryCli {
     };
   }
 
-  private formatOutput(summary: any, format: 'json' | 'markdown' | 'csv'): string {
+  private formatOutput(summary: any, format: 'json' | 'markdown' | 'csv'): string { // eslint-disable-line @typescript-eslint/no-explicit-any
     switch (format) {
       case 'json':
         return JSON.stringify(summary, null, 2);
-        
+
       case 'markdown':
         return this.toMarkdown(summary);
-        
+
       case 'csv':
         return this.toCSV(summary);
-        
+
       default:
         throw new Error(`Unsupported format: ${format}`);
     }
   }
 
-  private toMarkdown(summary: any): string {
+  private toMarkdown(summary: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
     const lines = [
       `# Daily Summary - ${summary.date}`,
       '',
@@ -224,7 +226,7 @@ class DailySummaryCli {
     return lines.join('\n');
   }
 
-  private toCSV(summary: any): string {
+  private toCSV(summary: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
     const header = 'Time,Sender,Subject,Status,Category\n';
     const rows = summary.emails.map((email: EmailInquiryModel) => {
       const time = email.receivedDate.toTimeString().substring(0, 5);
@@ -262,7 +264,7 @@ EXAMPLES:
 if (require.main === module) {
   const cli = new DailySummaryCli();
   const args = process.argv.slice(2);
-  
+
   cli.run(args).then(result => {
     if (result.stdout) {
       process.stdout.write(result.stdout);

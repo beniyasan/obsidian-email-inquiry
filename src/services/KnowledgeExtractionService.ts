@@ -1,6 +1,6 @@
 /**
  * KnowledgeExtractionService
- * 
+ *
  * Service for automatically extracting knowledge from resolved emails
  * and creating entries in the knowledge base folder.
  */
@@ -61,7 +61,7 @@ export class KnowledgeEntryModel {
   get tags(): string[] { return this.data.tags; }
   get createdAt(): Date { return this.data.createdAt; }
 
-  toFrontmatter(): Record<string, any> {
+  toFrontmatter(): Record<string, any> { // eslint-disable-line @typescript-eslint/no-explicit-any
     return {
       id: this.data.id,
       title: this.data.title,
@@ -170,7 +170,7 @@ export class KnowledgeExtractionService {
     // Simple extraction logic - take first few sentences that contain question words
     const sentences = body.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
     const problemSentences = sentences
-      .filter(sentence => 
+      .filter(sentence =>
         /\b(how|what|why|when|where|どう|何|なぜ|いつ|どこ|問題|エラー|できない|わからない)/i.test(sentence)
       )
       .slice(0, 3);

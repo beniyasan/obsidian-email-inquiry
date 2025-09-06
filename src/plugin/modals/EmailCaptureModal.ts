@@ -1,6 +1,6 @@
 /**
  * EmailCaptureModal
- * 
+ *
  * Modal dialog for capturing email inquiries with form validation
  * and real-time preview functionality.
  */
@@ -86,14 +86,14 @@ export class EmailCaptureModal extends Modal {
         this.categoryDropdown = dropdown;
         const categories = this.i18nService.getTranslationGroup('categories');
         dropdown.addOption('', 'Select category...');
-        
+
         // Add default categories
         dropdown
           .addOption(EmailCategory.SPECIFICATION, categories.specification)
           .addOption(EmailCategory.ISSUE, categories.issue)
           .addOption(EmailCategory.MIGRATION_VUP, categories.migration_vup)
           .addOption(EmailCategory.OTHER, categories.other);
-          
+
         // Add custom categories
         if (this.settings.customCategories && this.settings.customCategories.length > 0) {
           // Add separator if there are custom categories
@@ -102,7 +102,7 @@ export class EmailCaptureModal extends Modal {
             dropdown.addOption(customCategory, customCategory);
           });
         }
-        
+
         dropdown.setValue(this.settings.defaultCategory);
       });
 
@@ -155,7 +155,7 @@ export class EmailCaptureModal extends Modal {
     });
 
     // Capture button
-    buttonContainer.createEl('button', { 
+    buttonContainer.createEl('button', {
       text: this.i18nService.t('modal.capture_email.capture_button'),
       cls: 'mod-cta'
     }, button => {
@@ -178,7 +178,7 @@ export class EmailCaptureModal extends Modal {
   private validateEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValid = emailRegex.test(email);
-    
+
     // Add visual feedback
     const inputEl = this.senderInput.inputEl;
     if (email && !isValid) {
@@ -188,7 +188,7 @@ export class EmailCaptureModal extends Modal {
       inputEl.style.borderColor = '';
       inputEl.style.boxShadow = '';
     }
-    
+
     return isValid;
   }
 
@@ -222,7 +222,7 @@ export class EmailCaptureModal extends Modal {
   private async captureEmail() {
     try {
       const validation = this.validateForm();
-      
+
       if (!validation.isValid) {
         // Show validation errors
         const errorMessage = validation.errors.join('\n');
@@ -244,7 +244,7 @@ export class EmailCaptureModal extends Modal {
 
       // Show loading state
       const captureButton = this.contentEl.querySelector('.mod-cta') as HTMLButtonElement;
-      const originalText = captureButton.textContent;
+      // const originalText = captureButton.textContent; // Unused
       captureButton.textContent = 'Capturing...';
       captureButton.disabled = true;
 
@@ -253,11 +253,11 @@ export class EmailCaptureModal extends Modal {
 
       // Success callback
       this.onSuccess(result);
-      
+
       this.close();
     } catch (error) {
       this.showError(`Failed to capture email: ${error instanceof Error ? error.message : String(error)}`);
-      
+
       // Reset button state
       const captureButton = this.contentEl.querySelector('.mod-cta') as HTMLButtonElement;
       captureButton.textContent = 'Capture Email';

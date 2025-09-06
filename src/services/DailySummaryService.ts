@@ -1,6 +1,6 @@
 /**
  * DailySummaryService
- * 
+ *
  * Service for generating daily summaries of email inquiries.
  * Collects emails from a specific date, analyzes patterns, and creates
  * comprehensive summary reports.
@@ -66,7 +66,7 @@ export class DailySummaryService {
 
       // Collect emails for the specified date
       const emails = await this.collectEmailsForDate(request.date, request.includePreviousDays || 0);
-      
+
       if (emails.length === 0) {
         console.log('[DailySummary] No emails found for the specified date');
         throw new Error('指定された日付にメールが見つかりません');
@@ -105,11 +105,11 @@ export class DailySummaryService {
   private async collectEmailsForDate(targetDate: string, includePreviousDays: number = 0): Promise<EmailSummaryData[]> {
     const emails: EmailSummaryData[] = [];
     const targetDateObj = new Date(targetDate);
-    
+
     // Calculate date range
     const startDate = new Date(targetDateObj);
     startDate.setDate(startDate.getDate() - includePreviousDays);
-    
+
     console.log(`[DailySummary] Collecting emails from ${startDate.toISOString().split('T')[0]} to ${targetDate}`);
 
     try {
@@ -141,21 +141,21 @@ export class DailySummaryService {
   private async collectEmailsFromFolder(folderPath: string, targetDate: Date): Promise<EmailSummaryData[]> {
     const emails: EmailSummaryData[] = [];
     const targetDateStr = targetDate.toISOString().split('T')[0];
-    const day = String(targetDate.getDate()).padStart(2, '0');
+    // const day = String(targetDate.getDate()).padStart(2, '0'); // Unused
 
     try {
       // This is a simplified approach - in a real implementation, you would:
       // 1. List files in the folder
       // 2. Filter files that match the target date pattern (DD-*)
       // 3. Parse frontmatter to extract email data
-      
+
       // For now, we'll create mock data based on the expected file naming pattern
       // In a complete implementation, you would use the vault adapter to read files
       console.log(`[DailySummary] Scanning folder: ${folderPath} for date: ${targetDateStr}`);
-      
+
       // Mock implementation - replace with actual file reading
       // This would normally read .md files and parse their frontmatter
-      
+
     } catch (error) {
       console.error(`[DailySummary] Error reading folder ${folderPath}:`, error);
     }
@@ -223,7 +223,7 @@ export class DailySummaryService {
    */
   private generateSummaryContent(date: string, emails: EmailSummaryData[], stats: DailySummaryStats): string {
     const dateObj = new Date(date);
-    const formattedDate = this.settings.language === 'ja' 
+    const formattedDate = this.settings.language === 'ja'
       ? `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日`
       : dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -266,7 +266,7 @@ export class DailySummaryService {
       '',
       ...this.generateStatTable(stats.byPriority, this.getPriorityDisplayName.bind(this)),
       '',
-      '### ステータス別', 
+      '### ステータス別',
       '',
       ...this.generateStatTable(stats.byStatus, this.getStatusDisplayName.bind(this)),
       '',
@@ -275,7 +275,7 @@ export class DailySummaryService {
       ...(stats.topSenders.length > 0 ? [
         '| 送信者 | 件数 |',
         '|--------|------|',
-        ...stats.topSenders.map(sender => 
+        ...stats.topSenders.map(sender =>
           `| ${sender.name || sender.email} | ${sender.count}件 |`
         )
       ] : ['送信者データがありません。']),
@@ -389,7 +389,7 @@ export class DailySummaryService {
   private getCategoryDisplayName(category: string): string {
     const categoryMap: Record<string, string> = {
       'specification': '仕様',
-      'issue': '障害', 
+      'issue': '障害',
       'migration_vup': '移行/VUP',
       'other': 'その他'
     };
@@ -428,11 +428,11 @@ export class DailySummaryService {
   private async generateSummaryFilePath(date: string): Promise<string> {
     const dateObj = new Date(date);
     const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    
+    // const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Unused
+
     // Create folder structure: [summariesFolder]/YYYY/
     const folderPath = `${this.settings.summariesFolder}/${year}`;
-    
+
     // Ensure folder exists
     if (!(await this.vault.exists(folderPath))) {
       await this.vault.createFolder(folderPath);
@@ -440,7 +440,7 @@ export class DailySummaryService {
 
     const filename = `${date}-daily-summary.md`;
     let filePath = `${folderPath}/${filename}`;
-    
+
     // Ensure unique filename
     let counter = 1;
     while (await this.vault.exists(filePath)) {

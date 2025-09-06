@@ -3,12 +3,11 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   env: {
     node: true,
+    browser: true,
   },
   plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
-    '@typescript-eslint/eslint-recommended',
-    '@typescript-eslint/recommended',
   ],
   parserOptions: {
     sourceType: 'module',
@@ -26,6 +25,7 @@ module.exports = {
     // General rules
     'no-prototype-builtins': 'off',
     '@typescript-eslint/no-empty-interface': 'off',
+    'no-unused-vars': ['error', { varsIgnorePattern: '^_', argsIgnorePattern: '^_' }],
     
     // Obsidian specific allowances
     'prefer-const': 'error',

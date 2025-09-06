@@ -1,6 +1,6 @@
 /**
  * EmailInquirySettingsTab
- * 
+ *
  * Settings tab for configuring the Email Inquiry plugin preferences.
  */
 
@@ -68,21 +68,21 @@ export class EmailInquirySettingsTab extends PluginSettingTab {
       .setDesc(i18n.t('settings.defaults.category_desc'))
       .addDropdown(dropdown => {
         const categories = i18n.getTranslationGroup('categories');
-        
+
         // Add default categories
         dropdown
           .addOption(EmailCategory.SPECIFICATION, categories.specification)
           .addOption(EmailCategory.ISSUE, categories.issue)
           .addOption(EmailCategory.MIGRATION_VUP, categories.migration_vup)
           .addOption(EmailCategory.OTHER, categories.other);
-          
+
         // Add custom categories
         if (this.plugin.settings.customCategories && this.plugin.settings.customCategories.length > 0) {
           this.plugin.settings.customCategories.forEach(customCategory => {
             dropdown.addOption(customCategory, customCategory);
           });
         }
-        
+
         dropdown.setValue(this.plugin.settings.defaultCategory)
           .onChange(async (value) => {
             this.plugin.settings.defaultCategory = value;
@@ -142,11 +142,11 @@ export class EmailInquirySettingsTab extends PluginSettingTab {
 
     // Custom Categories Section
     containerEl.createEl('h3', { text: i18n.t('settings.categories.title') });
-    
+
     // Display current custom categories
     const categoriesContainer = containerEl.createDiv('custom-categories-container');
     categoriesContainer.style.marginBottom = '15px';
-    
+
     // Add description for category management
     const descriptionEl = categoriesContainer.createEl('p', {
       text: i18n.t('settings.categories.manage_desc'),
@@ -155,9 +155,9 @@ export class EmailInquirySettingsTab extends PluginSettingTab {
     descriptionEl.style.marginBottom = '8px';
     descriptionEl.style.color = 'var(--text-muted)';
     descriptionEl.style.fontSize = '13px';
-    
+
     this.displayCustomCategories(categoriesContainer, i18n);
-    
+
     // Add new category
     new Setting(containerEl)
       .setName(i18n.t('settings.categories.add_category'))
@@ -224,7 +224,7 @@ export class EmailInquirySettingsTab extends PluginSettingTab {
         .setWarning()
         .onClick(async () => {
           // Confirm reset
-          const confirmed = confirm('Are you sure you want to reset all settings to default values? This cannot be undone.');
+          const confirmed = window.confirm('Are you sure you want to reset all settings to default values? This cannot be undone.');
           if (confirmed) {
             this.plugin.settings = {
               emailsFolder: 'Emails',
@@ -246,16 +246,16 @@ export class EmailInquirySettingsTab extends PluginSettingTab {
 
     // Plugin information
     containerEl.createEl('h3', { text: 'About' });
-    containerEl.createEl('p', { 
-      text: 'Email Inquiry Management Plugin v1.0.0 - Capture, organize, and build knowledge from email inquiries.' 
+    containerEl.createEl('p', {
+      text: 'Email Inquiry Management Plugin v1.0.0 - Capture, organize, and build knowledge from email inquiries.'
     });
   }
 
-  private displayCustomCategories(container: HTMLElement, i18n: any): void {
+  private displayCustomCategories(container: HTMLElement, i18n: any): void { // eslint-disable-line @typescript-eslint/no-explicit-any
     container.empty();
-    
+
     if (this.plugin.settings.customCategories.length === 0) {
-      container.createEl('p', { 
+      container.createEl('p', {
         text: i18n.t('settings.categories.no_custom_categories'),
         cls: 'setting-item-description'
       });
@@ -274,7 +274,7 @@ export class EmailInquirySettingsTab extends PluginSettingTab {
         text: category,
         cls: 'category-tag'
       });
-      
+
       // Style the category tag
       categoryTag.style.backgroundColor = 'var(--interactive-accent)';
       categoryTag.style.color = 'var(--text-on-accent)';
@@ -284,7 +284,7 @@ export class EmailInquirySettingsTab extends PluginSettingTab {
       categoryTag.style.display = 'inline-flex';
       categoryTag.style.alignItems = 'center';
       categoryTag.style.gap = '4px';
-      
+
       // Add remove button
       const removeButton = categoryTag.createEl('span', {
         text: '×',
@@ -304,21 +304,21 @@ export class EmailInquirySettingsTab extends PluginSettingTab {
       removeButton.style.borderRadius = '50%';
       removeButton.style.transition = 'all 0.2s ease';
       removeButton.title = i18n.t('settings.categories.delete_tooltip');
-      
+
       removeButton.addEventListener('mouseenter', () => {
         removeButton.style.opacity = '1';
         removeButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
         removeButton.style.transform = 'scale(1.1)';
       });
-      
+
       removeButton.addEventListener('mouseleave', () => {
         removeButton.style.opacity = '0.8';
         removeButton.style.backgroundColor = 'transparent';
         removeButton.style.transform = 'scale(1)';
       });
-      
+
       removeButton.onclick = async () => {
-        const confirmed = confirm(i18n.t('settings.categories.delete_confirm', { category }));
+        const confirmed = window.confirm(i18n.t('settings.categories.delete_confirm', { category }));
         if (confirmed) {
           this.plugin.settings.customCategories.splice(index, 1);
           await this.plugin.saveSettings();

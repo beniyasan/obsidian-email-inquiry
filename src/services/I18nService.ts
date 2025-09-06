@@ -1,6 +1,6 @@
 /**
  * I18nService - Internationalization Service
- * 
+ *
  * Handles loading and managing translations for different languages.
  * Supports template string replacement and fallback to English.
  */
@@ -8,7 +8,7 @@
 export type SupportedLanguage = 'en' | 'ja';
 
 interface TranslationData {
-  [key: string]: any;
+  [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export class I18nService {
@@ -67,8 +67,8 @@ export class I18nService {
    */
   private detectLanguage() {
     // Check browser/system language
-    const userLanguage = navigator.language || 'en';
-    
+    const userLanguage = window.navigator.language || 'en';
+
     if (userLanguage.startsWith('ja')) {
       this.currentLanguage = 'ja';
     } else {
@@ -99,13 +99,13 @@ export class I18nService {
 
   /**
    * Translate a key to the current language
-   * 
+   *
    * @param key - Translation key (dot-separated path)
    * @param params - Parameters for template replacement
    * @returns Translated string
    */
-  t(key: string, params?: Record<string, any>): string {
-    const translation = this.getTranslation(key, this.currentLanguage) || 
+  t(key: string, params?: Record<string, any>): string { // eslint-disable-line @typescript-eslint/no-explicit-any
+    const translation = this.getTranslation(key, this.currentLanguage) ||
                        this.getTranslation(key, this.fallbackLanguage) ||
                        key; // Fallback to key if translation not found
 
@@ -124,7 +124,7 @@ export class I18nService {
     if (!translations) return null;
 
     const keys = key.split('.');
-    let current: any = translations;
+    let current: any = translations; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     for (const k of keys) {
       if (current && typeof current === 'object' && k in current) {
@@ -141,7 +141,7 @@ export class I18nService {
    * Replace template parameters in translation strings
    * Supports {{param}} syntax
    */
-  private replaceParams(template: string, params: Record<string, any>): string {
+  private replaceParams(template: string, params: Record<string, any>): string { // eslint-disable-line @typescript-eslint/no-explicit-any
     return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
       return params[key] !== undefined ? String(params[key]) : match;
     });
@@ -154,7 +154,7 @@ export class I18nService {
   getTranslationGroup(prefix: string): Record<string, string> {
     const translations = this.translations.get(this.currentLanguage) || {};
     const keys = prefix.split('.');
-    let current: any = translations;
+    let current: any = translations; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     for (const key of keys) {
       if (current && typeof current === 'object' && key in current) {
@@ -162,7 +162,7 @@ export class I18nService {
       } else {
         // Fallback to English
         const fallbackTranslations = this.translations.get(this.fallbackLanguage) || {};
-        let fallbackCurrent: any = fallbackTranslations;
+        let fallbackCurrent: any = fallbackTranslations; // eslint-disable-line @typescript-eslint/no-explicit-any
         for (const fallbackKey of keys) {
           if (fallbackCurrent && typeof fallbackCurrent === 'object' && fallbackKey in fallbackCurrent) {
             fallbackCurrent = fallbackCurrent[fallbackKey];
