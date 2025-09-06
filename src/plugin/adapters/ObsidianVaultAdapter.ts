@@ -141,6 +141,11 @@ export class ObsidianVaultAdapter implements VaultAdapter {
     }
   }
 
+  getFolderPath(folder: string): string {
+    // Simply return the folder name as is, since Obsidian uses relative paths
+    return folder;
+  }
+
   async getFiles(folderPath?: string): Promise<TFile[]> {
     try {
       if (folderPath) {

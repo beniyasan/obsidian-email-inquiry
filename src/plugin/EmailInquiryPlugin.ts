@@ -9,9 +9,11 @@ import { Plugin, Notice } from 'obsidian';
 import { EmailCaptureService } from '../services/EmailCaptureService';
 import { KnowledgeExtractionService } from '../services/KnowledgeExtractionService';
 import { DailySummaryService } from '../services/DailySummaryService';
+import { KnowledgeSearchService } from '../services/KnowledgeSearchService';
 import { I18nService, SupportedLanguage } from '../services/I18nService';
 import { ObsidianVaultAdapter } from './adapters/ObsidianVaultAdapter';
 import { EmailCaptureModal } from './modals/EmailCaptureModal';
+import { KnowledgeSearchModal } from './modals/KnowledgeSearchModal';
 import { EmailInquirySettingsTab } from './EmailInquirySettingsTab';
 
 export interface EmailInquirySettings {
@@ -49,6 +51,7 @@ export default class EmailInquiryPlugin extends Plugin {
   private emailCaptureService: EmailCaptureService;
   private knowledgeExtractionService: KnowledgeExtractionService;
   private dailySummaryService: DailySummaryService;
+  private knowledgeSearchService: KnowledgeSearchService;
   private vaultAdapter: ObsidianVaultAdapter;
   private i18nService: I18nService;
 
@@ -77,6 +80,13 @@ export default class EmailInquiryPlugin extends Plugin {
       summariesFolder: this.settings.summariesFolder,
       emailsFolder: this.settings.emailsFolder,
       language: this.settings.language
+    });
+
+    // Initialize knowledge search service
+    this.knowledgeSearchService = new KnowledgeSearchService(this.vaultAdapter, {
+      knowledgeFolder: this.settings.knowledgeFolder,
+      enableCache: true,
+      maxResults: 50
     });
 
     // Initialize email capture service with knowledge extraction
@@ -247,8 +257,16 @@ export default class EmailInquiryPlugin extends Plugin {
   }
 
   private openKnowledgeSearch() {
-    // TODO: Implement knowledge search modal
-    new Notice(this.i18nService.t('notices.knowledge_search_coming_soon'));
+    const modal = new KnowledgeSearchModal(
+      this.app,
+      this.knowledgeSearchService,
+      this.i18nService,
+      {
+        knowledgeFolder: this.settings.knowledgeFolder,
+        customCategories: this.settings.customCategories
+      }
+    );
+    modal.open();
   }
 
   private openBulkImportModal() {
