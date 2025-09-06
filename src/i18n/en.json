@@ -97,6 +97,7 @@
     "email_captured": "Email captured: {{path}}",
     "generating_summary": "Generating daily summary for {{date}}...",
     "summary_generated": "Daily summary generated successfully",
+    "summary_generated_with_path": "Daily summary generated ({{count}} emails): {{path}}",
     "error_generating_summary": "Error generating summary: {{error}}",
     "knowledge_search_coming_soon": "Knowledge search coming soon...",
     "bulk_import_coming_soon": "Bulk import coming soon...",

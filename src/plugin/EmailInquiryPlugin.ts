@@ -8,6 +8,7 @@
 import { Plugin, TFile, Notice, WorkspaceLeaf } from 'obsidian';
 import { EmailCaptureService } from '../services/EmailCaptureService';
 import { KnowledgeExtractionService } from '../services/KnowledgeExtractionService';
+import { DailySummaryService } from '../services/DailySummaryService';
 import { I18nService, SupportedLanguage } from '../services/I18nService';
 import { ObsidianVaultAdapter } from './adapters/ObsidianVaultAdapter';
 import { EmailCaptureModal } from './modals/EmailCaptureModal';
@@ -47,6 +48,7 @@ export default class EmailInquiryPlugin extends Plugin {
   // Services
   private emailCaptureService: EmailCaptureService;
   private knowledgeExtractionService: KnowledgeExtractionService;
+  private dailySummaryService: DailySummaryService;
   private vaultAdapter: ObsidianVaultAdapter;
   private i18nService: I18nService;
 
@@ -68,6 +70,13 @@ export default class EmailInquiryPlugin extends Plugin {
       knowledgeFolder: this.settings.knowledgeFolder,
       autoExtractKnowledge: this.settings.autoExtractKnowledge,
       enableNotifications: this.settings.enableNotifications
+    });
+    
+    // Initialize daily summary service
+    this.dailySummaryService = new DailySummaryService(this.vaultAdapter, {
+      summariesFolder: this.settings.summariesFolder,
+      emailsFolder: this.settings.emailsFolder,
+      language: this.settings.language
     });
     
     // Initialize email capture service with knowledge extraction
@@ -121,6 +130,13 @@ export default class EmailInquiryPlugin extends Plugin {
         knowledgeFolder: this.settings.knowledgeFolder,
         autoExtractKnowledge: this.settings.autoExtractKnowledge,
         enableNotifications: this.settings.enableNotifications
+      });
+      
+      // Update daily summary service settings
+      this.dailySummaryService.updateSettings({
+        summariesFolder: this.settings.summariesFolder,
+        emailsFolder: this.settings.emailsFolder,
+        language: this.settings.language
       });
       
       // Re-initialize email capture service with updated settings
@@ -194,13 +210,29 @@ export default class EmailInquiryPlugin extends Plugin {
   private async generateDailySummary() {
     try {
       const today = new Date().toISOString().split('T')[0];
+      console.log(`[EmailInquiry] Generating daily summary for: ${today}`);
+      
       new Notice(this.i18nService.t('notices.generating_summary', { date: today }));
       
-      // TODO: Implement daily summary generation
-      // const summary = await this.dailySummaryService.generateSummary({ date: today });
+      // Generate daily summary using the service
+      const result = await this.dailySummaryService.generateSummary({ 
+        date: today,
+        includePreviousDays: 0 // Only today's emails
+      });
       
-      new Notice(this.i18nService.t('notices.summary_generated'));
+      if (this.settings.enableNotifications) {
+        new Notice(this.i18nService.t('notices.summary_generated_with_path', { 
+          path: result.filePath,
+          count: result.stats.totalEmails 
+        }));
+      } else {
+        new Notice(this.i18nService.t('notices.summary_generated'));
+      }
+      
+      console.log(`[EmailInquiry] Daily summary generated successfully:`, result);
+      
     } catch (error) {
+      console.error('[EmailInquiry] Daily summary generation failed:', error);
       new Notice(this.i18nService.t('notices.error_generating_summary', { error: String(error) }));
     }
   }
