@@ -67,7 +67,7 @@ describe.skip('Knowledge Search Contract', () => {
     it('should filter by category', async () => {
       const request: SearchRequest = {
         query: 'billing',
-        category: EmailCategory.BILLING,
+        category: EmailCategory.OTHER,
         limit: 50,
       };
 

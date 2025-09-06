@@ -20,9 +20,9 @@ describe.skip('Bulk Import Contract', () => {
     it('should start bulk import for EML files', async () => {
       const request: BulkImportRequest = {
         format: 'eml',
-        file: 'base64encodedcontent',
+        content: 'base64encodedcontent',
         tagAll: ['imported', 'batch-2025'],
-        category: EmailCategory.SUPPORT,
+        category: EmailCategory.OTHER,
       };
 
       // This MUST FAIL - no implementation exists yet
@@ -40,7 +40,7 @@ describe.skip('Bulk Import Contract', () => {
     it('should start bulk import for MBOX files', async () => {
       const request: BulkImportRequest = {
         format: 'mbox',
-        file: 'mboxfilecontenthere',
+        content: 'mboxfilecontenthere',
       };
 
       // This MUST FAIL - no MBOX parsing exists yet
@@ -58,7 +58,7 @@ user2@example.com,"Test Subject 2","Test body 2","2025-09-05T11:00:00Z"`;
 
       const request: BulkImportRequest = {
         format: 'csv',
-        file: Buffer.from(csvContent).toString('base64'),
+        content: Buffer.from(csvContent).toString('base64'),
         tagAll: ['csv-import'],
         category: EmailCategory.OTHER,
       };
@@ -106,7 +106,7 @@ user2@example.com,"Test Subject 2","Test body 2","2025-09-05T11:00:00Z"`;
     it('should handle empty file content', async () => {
       const request: BulkImportRequest = {
         format: 'eml',
-        file: '',
+        content: '',
       };
 
       // This MUST FAIL - no empty file handling exists yet
@@ -120,7 +120,7 @@ user2@example.com,"Test Subject 2","Test body 2","2025-09-05T11:00:00Z"`;
     it('should apply tags to all imported emails', async () => {
       const request: BulkImportRequest = {
         format: 'eml',
-        file: 'sampleemlcontent',
+        content: 'sampleemlcontent',
         tagAll: ['urgent', 'migration', 'q4-2025'],
       };
 
@@ -137,21 +137,21 @@ user2@example.com,"Test Subject 2","Test body 2","2025-09-05T11:00:00Z"`;
     it('should set category for all imported emails', async () => {
       const request: BulkImportRequest = {
         format: 'mbox',
-        file: 'mboxcontent',
-        category: EmailCategory.BILLING,
+        content: 'mboxcontent',
+        category: EmailCategory.OTHER,
       };
 
       // This MUST FAIL - no category assignment exists yet
       const response = await importService.bulkImport(request);
 
       const jobStatus = await importService.getJobStatus(response.jobId);
-      expect(jobStatus.category).toBe(EmailCategory.BILLING);
+      expect(jobStatus.category).toBe(EmailCategory.OTHER);
     });
 
     it('should track import progress', async () => {
       const request: BulkImportRequest = {
         format: 'eml',
-        file: 'largeemlfile',
+        content: 'largeemlfile',
       };
 
       // This MUST FAIL - no progress tracking exists yet
@@ -172,7 +172,7 @@ user2@example.com,"Test Subject 2","Test body 2","2025-09-05T11:00:00Z"`;
     it('should handle import errors gracefully', async () => {
       const request: BulkImportRequest = {
         format: 'eml',
-        file: 'corruptedemlcontent',
+        content: 'corruptedemlcontent',
       };
 
       // This MUST FAIL - no error handling exists yet
@@ -191,7 +191,7 @@ user2@example.com,"Test Subject 2","Test body 2","2025-09-05T11:00:00Z"`;
       const largeFile = 'x'.repeat(100 * 1024 * 1024); // 100MB
       const request: BulkImportRequest = {
         format: 'mbox',
-        file: largeFile,
+        content: largeFile,
       };
 
       // This MUST FAIL - no size validation exists yet

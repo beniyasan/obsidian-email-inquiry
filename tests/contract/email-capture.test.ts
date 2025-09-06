@@ -31,8 +31,8 @@ describe.skip('Email Capture Contract', () => {
       expect(response).toMatchObject({
         id: expect.stringMatching(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/),
         path: expect.stringContaining('Emails/2025/09/05/'),
-        status: EmailStatus.PENDING,
-      } as EmailCaptureResponse);
+        message: expect.any(String),
+      });
     });
 
     it('should capture email with optional fields', async () => {

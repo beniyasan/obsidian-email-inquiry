@@ -7,7 +7,7 @@
 
 import { DailySummaryService } from '@services/DailySummaryService';
 import { EmailCaptureService } from '@services/EmailCaptureService';
-import { DailySummaryRequest } from '@/types/api';
+// import { DailySummaryRequest } from '@/types/api'; // Type doesn't exist
 import { EmailStatus, EmailCategory, Priority } from '@/types/enums';
 
 describe.skip('TDD GREEN Phase Verification', () => {
